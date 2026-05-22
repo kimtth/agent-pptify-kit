@@ -2,6 +2,9 @@
 
 Agent-driven PPTX toolkit. Coding agents use the installed skill set, plugin tools, and predefined design context to plan and generate coordinate-explicit PowerPoint decks.
 
+> **Sample** (densed and overcomplicated layout for stress testing): [pptify-kit-stress-demo.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo.pptx)
+
+
 | Package | Purpose |
 | --- | --- |
 | [pptify-plugin](pptify-plugin) | Source ingestion, design context, image/SVG helpers, PPTX extraction, collision audit |
