@@ -161,14 +161,14 @@ MIT
         version = $Version
         description = "Awesome Copilot PR artifacts for PPTify plugin with skills at top-level."
         generatedWith = [ordered]@{
-            command = "deploy\create-artifacts.ps1 - copies skill folders from pptify-core\skills\"
+            command = "awesome-deploy\create-artifacts.ps1 - copies skill folders from pptify-core\skills\"
         }
-        copyRoot = "deploy\awesome-copilot"
-        generator = "deploy\create-artifacts.ps1"
+        copyRoot = "awesome-deploy\awesome-copilot"
+        generator = "awesome-deploy\create-artifacts.ps1"
         artifacts = @(
-            "deploy\awesome-copilot\plugins\$PluginId\.github\plugin\plugin.json",
-            "deploy\awesome-copilot\plugins\$PluginId\README.md",
-            "deploy\awesome-copilot\skills"
+            "awesome-deploy\awesome-copilot\plugins\$PluginId\.github\plugin\plugin.json",
+            "awesome-deploy\awesome-copilot\plugins\$PluginId\README.md",
+            "awesome-deploy\awesome-copilot\skills"
         )
         validationCommands = @(
             "npm install",
