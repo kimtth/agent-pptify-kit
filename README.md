@@ -1,16 +1,20 @@
 # pptify-kit
 
-Agent-driven PPTX toolkit. Coding agents use the installed skill set, plugin tools, and predefined design context to plan and generate coordinate-explicit PowerPoint decks.
+Agent-driven PPTX toolkit packaged as a VS Code agent plugin. Coding agents use the root-level skill set, plugin tools, and predefined design context to plan and generate coordinate-explicit PowerPoint decks.
 
 > **Sample** (densed and overcomplicated layout for stress testing): [pptify-kit-stress-demo.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo.pptx)
 
 
 | Package | Purpose |
 | --- | --- |
-| [pptify-plugin](pptify-plugin) | Source ingestion, design context, image/SVG helpers, PPTX extraction, collision audit |
-| [pptify-core](pptify-core) | Agent Skills and workflow prompts |
-| [pptify-design](pptify-design) | Predefined design profiles and template context |
+| [plugin.json](plugin.json) | VS Code/Copilot plugin metadata declaring exposed component folders |
+| [agents](agents) | Custom agents discovered by the plugin |
+| [skills](skills) | Agent Skills discovered by the plugin |
+| [scripts](scripts) | Bundled support scripts called by skills and agents |
+| [resources/design](resources/design) | Predefined design profiles and template context |
 | [pptify-cli](pptify-cli) | Installs the above into `./.agent/` |
+
+The plugin manifest intentionally declares the supported Copilot component folders, `skills/` and `agents/`. The end-to-end deck-generation workflow is consolidated into the custom agent; `scripts/` and `resources/` are bundled support assets referenced by declared components.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
@@ -33,19 +37,19 @@ See [pptify-cli/README.md](pptify-cli/README.md) for `uninstall`, `help`, and `-
 
 ## Image Provider Credentials
 
-When OpenAI or Azure OpenAI image generation is needed, create a local `.env` from `.env.template` and fill the required provider values there. The image helper loads `.env` automatically; `.env` is git-ignored and must not be committed.
+When OpenAI or Azure OpenAI image generation is needed, create a local `.env` from `resources/env.template` and fill the required provider values there. The image helper loads `.env` automatically; `.env` is git-ignored and must not be committed.
 
 ```powershell
-Copy-Item .env.template .env
+Copy-Item resources/env.template .env
 ```
 
 ## Common Plugin Commands
 
 ```powershell
-uv run python pptify-plugin/design/design_context_catalog.py --list --pretty
-uv run python pptify-plugin/audit/audit.py deck-spec.json --json
-uv run python pptify-plugin/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty
-uv run python pptify-plugin/images/text_prompt_to_infographic.py --provider azure-openai --azure-endpoint "<endpoint>" --model "gpt-image-2" --prompt "..." --output-path out.png --pretty
+uv run python scripts/design/design_context_catalog.py --list --pretty
+uv run python scripts/audit/audit.py deck-spec.json --json
+uv run python scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty
+uv run python scripts/images/text_prompt_to_infographic.py --provider azure-openai --azure-endpoint "<endpoint>" --model "gpt-image-2" --prompt "..." --output-path out.png --pretty
 ```
 
 Extraction helpers (`extraction/pptx_extractor.py`, `extraction/pptx_style_master.py`) are import APIs — load them with `importlib.util.spec_from_file_location(...)`.
@@ -55,5 +59,5 @@ Extraction helpers (`extraction/pptx_extractor.py`, `extraction/pptx_style_maste
 The MiniLM ONNX model and tokenizer are not committed. Restore from the repository root:
 
 ```powershell
-.\pptify-plugin\download-external-assets.ps1
+.\scripts\download-external-assets.ps1
 ```

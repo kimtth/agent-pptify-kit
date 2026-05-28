@@ -71,9 +71,9 @@ instance/
 .env.*
 !.env.template
 
-# Optional external assets restored by pptify-plugin/download-external-assets.ps1
-pptify-plugin/external/all-MiniLM-L6-v2/*
-!pptify-plugin/external/all-MiniLM-L6-v2/.gitkeep
+# Optional external assets restored by scripts/download-external-assets.ps1
+scripts/external/all-MiniLM-L12-v2/*
+!scripts/external/all-MiniLM-L12-v2/.gitkeep
 
 # Generated scratch artifacts and external reference repos
 temp/code/

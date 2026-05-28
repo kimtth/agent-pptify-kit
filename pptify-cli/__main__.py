@@ -30,19 +30,19 @@ from pathlib import Path
 _CLI_DIR = Path(__file__).parent          # pptify-cli/
 _REPO_ROOT = _CLI_DIR.parent             # workspace root
 
-_SKILLS_SRC = _REPO_ROOT / "pptify-core" / "skills"
-_WORKFLOWS_SRC = _REPO_ROOT / "pptify-core" / "workflows"
-_DESIGN_SRC = _REPO_ROOT / "pptify-design"
+_AGENTS_SRC = _REPO_ROOT / "agents"
+_SKILLS_SRC = _REPO_ROOT / "skills"
+_DESIGN_SRC = _REPO_ROOT / "resources" / "design"
 _DESIGN_CATALOG = _DESIGN_SRC / "sources.json"
-_PLUGIN_ROOT = _REPO_ROOT / "pptify-plugin"
-_ENV_TEMPLATE_SRC = _REPO_ROOT / ".env.template"
+_PLUGIN_ROOT = _REPO_ROOT / "scripts"
+_ENV_TEMPLATE_SRC = _REPO_ROOT / "resources" / "env.template"
 
 _AGENT_HOME = Path.cwd() / ".agent"
+_AGENTS_DST = _AGENT_HOME / "agents"
 _SKILLS_DST = _AGENT_HOME / "skills"
-_WORKFLOWS_DST = _AGENT_HOME / "workflows"
-_PLUGIN_DST = _AGENT_HOME / "pptify-plugin"
-_DESIGN_DST = _AGENT_HOME / "pptify-design"
-_ENV_TEMPLATE_DST = _AGENT_HOME / ".env.template"
+_PLUGIN_DST = _AGENT_HOME / "scripts"
+_DESIGN_DST = _AGENT_HOME / "resources" / "design"
+_ENV_TEMPLATE_DST = _AGENT_HOME / "resources" / "env.template"
 _POLICY_DST = _AGENT_HOME / "pptify-policy.md"
 _INSTRUCTIONS_DST = _AGENT_HOME / "copilot-instruction.md"
 
@@ -89,16 +89,16 @@ Installed by pptify-cli. Do not edit manually; run `pptify install` to refresh.
 ## Quality Gates
 
 - Production-ready decks must have zero content collisions (verified by
-  `pptify-plugin/audit/audit.py`).
+  `scripts/audit/audit.py`).
 - Production-ready decks must have zero text overflows.
 - No `classification: "content"` object may use `style.font_size` below 9 pt.
 
 ## Asset and Design Boundaries
 
 - Do not copy external fonts, icons, images, or binary assets without explicit
-  license metadata and source attribution in `pptify-design/sources.json` or
-  `pptify-design/third-party-notices.md`.
-- For every new generated deck, load a profile from `pptify-design/sources.json`
+  license metadata and source attribution in `resources/design/sources.json` or
+  `resources/design/third-party-notices.md`.
+- For every new generated deck, load a profile from `resources/design/sources.json`
     unless a user-provided brand guide or reference PPTX is the primary style
     source. Do not invent a new design template.
 - Production-ready decks must record selected profile IDs, source URLs, and
@@ -126,17 +126,17 @@ Use the installed `./.agent` assets as the local pptify runtime context.
 
 ## Installed Context
 
+- Agents: `./.agent/agents/*.agent.md`
 - Skills: `./.agent/skills/pptify-*`
-- Workflows: `./.agent/workflows`
-- Design profiles and predefined templates: `./.agent/pptify-design`
-- Plugin tool set: `./.agent/pptify-plugin`
-- Image provider environment template: `./.agent/.env.template`
+- Design profiles and predefined templates: `./.agent/resources/design`
+- Plugin tool set: `./.agent/scripts`
+- Image provider environment template: `./.agent/resources/env.template`
 - Developer-protection policy: `./.agent/pptify-policy.md`
 
 ## Agent Rules
 
 - Read `./.agent/pptify-policy.md` before generating or repairing a deck.
-- For every new generated deck, choose and load a `./.agent/pptify-design`
+- For every new generated deck, choose and load a `./.agent/resources/design`
     profile before authoring slides unless a user-provided brand guide or
     reference PPTX is the primary style source. Default to
     `fluent-ui-design-tokens`; for developer decks use `primer-primitives`; for
@@ -147,10 +147,10 @@ Use the installed `./.agent` assets as the local pptify runtime context.
     and signature elements in `summary.design_context`.
 - Treat plain white, Calibri-only, bullet-heavy `python-pptx`-looking output as
     not production-ready.
-- Use scripts under `./.agent/pptify-plugin` for source ingestion, design
+- Use scripts under `./.agent/scripts` for source ingestion, design
     context loading, visual assets, PPTX extraction, and audit checks.
 - When image generation needs provider configuration or credentials, create
-    `./.agent/.env` from `./.agent/.env.template` and have the user fill secrets
+    `./.agent/.env` from `./.agent/resources/env.template` and have the user fill secrets
     directly in that file. Do not ask for secrets in chat or prompt dialogs.
 - Keep generated specs coordinate-explicit and preserve source/license metadata
     from the selected design profile.
@@ -163,56 +163,56 @@ Use the installed `./.agent` assets as the local pptify runtime context.
 _PLUGINS: list[dict] = [
     {
         "id": "audit",
-        "path": "pptify-plugin/audit/audit.py",
+        "path": "scripts/audit/audit.py",
         "description": "Check content-region collisions and text overflows in layout-tree JSON specs.",
-        "usage": "uv run python pptify-plugin/audit/audit.py <spec.json> --json",
+        "usage": "uv run python scripts/audit/audit.py <spec.json> --json",
     },
     {
         "id": "design-context-catalog",
-        "path": "pptify-plugin/design/design_context_catalog.py",
-        "description": "List or load source-backed design context profiles from pptify-design.",
-        "usage": "uv run python pptify-plugin/design/design_context_catalog.py --list --pretty",
+        "path": "scripts/design/design_context_catalog.py",
+        "description": "List or load source-backed design context profiles from resources/design.",
+        "usage": "uv run python scripts/design/design_context_catalog.py --list --pretty",
     },
     {
         "id": "document-to-markdown",
-        "path": "pptify-plugin/documents/document_to_markdown.py",
+        "path": "scripts/documents/document_to_markdown.py",
         "description": "Convert documents (PDF, DOCX, HTML) to Markdown using MarkItDown.",
-        "usage": "uv run python pptify-plugin/documents/document_to_markdown.py --input doc.pdf --output doc.md",
+        "usage": "uv run python scripts/documents/document_to_markdown.py --source doc.pdf --output-path doc.md",
     },
     {
         "id": "document-to-raptor-tree",
-        "path": "pptify-plugin/documents/document_to_raptor_tree.py",
-        "description": "Build a deterministic RAPTOR-style summary tree from a Markdown corpus.",
-        "usage": "uv run python pptify-plugin/documents/document_to_raptor_tree.py --markdown '# Source' --output-path tree.json --pretty",
+        "path": "scripts/documents/document_to_raptor_tree.py",
+        "description": "Build a RAPTOR-style summary tree from a Markdown corpus, using local ONNX embeddings when available.",
+        "usage": "uv run python scripts/documents/document_to_raptor_tree.py --markdown '# Source' --output-path tree.json --pretty",
     },
     {
         "id": "iconify-search",
-        "path": "pptify-plugin/images/iconfy_search.py",
+        "path": "scripts/images/iconfy_search.py",
         "description": "Search Iconify for SVG icon candidates (Fluent, Material, etc.).",
-        "usage": "uv run python pptify-plugin/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty",
+        "usage": "uv run python scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty",
     },
     {
         "id": "web-image-search",
-        "path": "pptify-plugin/images/web_image_search.py",
+        "path": "scripts/images/web_image_search.py",
         "description": "Return web image candidates for a search query.",
-        "usage": "uv run python pptify-plugin/images/web_image_search.py --query 'cloud governance' --pretty",
+        "usage": "uv run python scripts/images/web_image_search.py --query 'cloud governance' --pretty",
     },
     {
         "id": "raster-image-to-svg",
-        "path": "pptify-plugin/images/raster_image_to_svg.py",
+        "path": "scripts/images/raster_image_to_svg.py",
         "description": "Wrap a raster image as SVG or vector-trace it using vtracer.",
-        "usage": "uv run python pptify-plugin/images/raster_image_to_svg.py --input image.png --output image.svg --pretty",
+        "usage": "uv run python scripts/images/raster_image_to_svg.py --source image.png --output-path image.svg --pretty",
     },
     {
         "id": "text-prompt-to-infographic",
-        "path": "pptify-plugin/images/text_prompt_to_infographic.py",
+        "path": "scripts/images/text_prompt_to_infographic.py",
         "description": (
             "Generate infographic images via OpenAI or Azure OpenAI. "
-            "No local fallback provider. Create .env from .env.template "
+            "No local fallback provider. Create .env from resources/env.template "
             "when credentials or provider settings are required; never pass API keys as CLI arguments."
         ),
         "usage": (
-            "uv run python pptify-plugin/images/text_prompt_to_infographic.py "
+            "uv run python scripts/images/text_prompt_to_infographic.py "
             "--provider azure-openai --azure-endpoint <endpoint> "
             "--model <deployment> --prompt 'Cloud governance roadmap' "
             "--output-path infographic.png --pretty"
@@ -220,20 +220,20 @@ _PLUGINS: list[dict] = [
     },
     {
         "id": "pptx-extractor",
-        "path": "pptify-plugin/extraction/pptx_extractor.py",
+        "path": "scripts/extraction/pptx_extractor.py",
         "description": "Importable PPTX extraction helper (load with importlib; not a CLI script).",
         "usage": (
             "importlib.util.spec_from_file_location("
-            "'pptx_extractor', 'pptify-plugin/extraction/pptx_extractor.py')"
+            "'pptx_extractor', 'scripts/extraction/pptx_extractor.py')"
         ),
     },
     {
         "id": "pptx-style-master",
-        "path": "pptify-plugin/extraction/pptx_style_master.py",
+        "path": "scripts/extraction/pptx_style_master.py",
         "description": "Importable PPTX style-master analysis helper (load with importlib; not a CLI script).",
         "usage": (
             "importlib.util.spec_from_file_location("
-            "'pptx_style_master', 'pptify-plugin/extraction/pptx_style_master.py')"
+            "'pptx_style_master', 'scripts/extraction/pptx_style_master.py')"
         ),
     },
 ]
@@ -264,16 +264,19 @@ def _copy_tree(src: Path, dst: Path) -> None:
 
 
 def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
-    """Copy pptify skills, workflows, tools, design context, instructions, and policy."""
+    """Copy pptify agents, skills, tools, design context, instructions, and policy."""
     home = agent_home or _AGENT_HOME
+    agents_dst = home / "agents"
     skills_dst = home / "skills"
-    workflows_dst = home / "workflows"
-    plugin_dst = home / "pptify-plugin"
-    design_dst = home / "pptify-design"
-    env_template_dst = home / ".env.template"
+    plugin_dst = home / "scripts"
+    design_dst = home / "resources" / "design"
+    env_template_dst = home / "resources" / "env.template"
     policy_dst = home / "pptify-policy.md"
     instructions_dst = home / "copilot-instruction.md"
 
+    if not _AGENTS_SRC.is_dir():
+        print(f"ERROR: Agents source not found: {_AGENTS_SRC}", file=sys.stderr)
+        sys.exit(1)
     if not _SKILLS_SRC.is_dir():
         print(f"ERROR: Skills source not found: {_SKILLS_SRC}", file=sys.stderr)
         sys.exit(1)
@@ -288,9 +291,20 @@ def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
         sys.exit(1)
 
     if not dry_run:
+        agents_dst.mkdir(parents=True, exist_ok=True)
         skills_dst.mkdir(parents=True, exist_ok=True)
 
+    installed_agents: list[str] = []
     installed_skills: list[str] = []
+
+    for agent_file in sorted(_AGENTS_SRC.glob("*.agent.md")):
+        dst = agents_dst / agent_file.name
+        if dry_run:
+            print(f"  [dry-run] Would install agent: {agent_file.name}  ->  {dst}")
+        else:
+            shutil.copy2(agent_file, dst)
+            print(f"  Installed agent: {agent_file.name}  ->  {dst}")
+        installed_agents.append(agent_file.name)
 
     for skill_dir in sorted(_SKILLS_SRC.iterdir()):
         if not skill_dir.is_dir() or not skill_dir.name.startswith(_SKILL_PREFIX):
@@ -304,20 +318,6 @@ def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
             shutil.copytree(skill_dir, dst)
             print(f"  Installed skill: {skill_dir.name}  ->  {dst}")
         installed_skills.append(skill_dir.name)
-
-    # Workflow prompts
-    if _WORKFLOWS_SRC.is_dir():
-        if not dry_run:
-            workflows_dst.mkdir(parents=True, exist_ok=True)
-        for wf_file in sorted(_WORKFLOWS_SRC.iterdir()):
-            if not wf_file.is_file():
-                continue
-            dst = workflows_dst / wf_file.name
-            if dry_run:
-                print(f"  [dry-run] Would install workflow: {wf_file.name}  ->  {dst}")
-            else:
-                shutil.copy2(wf_file, dst)
-                print(f"  Installed workflow: {wf_file.name}  ->  {dst}")
 
     # Plugin tool set and predefined design context
     for label, src, dst in (
@@ -336,6 +336,7 @@ def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
     elif env_template_dst.exists():
         print(f"  SKIP env template (already exists): {env_template_dst}")
     else:
+        env_template_dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(_ENV_TEMPLATE_SRC, env_template_dst)
         print(f"  Installed env template: {env_template_dst}")
 
@@ -357,7 +358,7 @@ def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
     else:
         print(f"  SKIP instructions (user-owned, no sentinel): {instructions_dst}")
 
-    msg = f"pptify installed: {len(installed_skills)} skill(s) to {skills_dst}"
+    msg = f"pptify installed: {len(installed_agents)} agent(s) to {agents_dst}; {len(installed_skills)} skill(s) to {skills_dst}"
     print(f"\n{('[dry-run] ' if dry_run else '')}{msg}")
 
 
@@ -369,15 +370,31 @@ def _install(dry_run: bool = False, agent_home: Path | None = None) -> None:
 def _uninstall(dry_run: bool = False, agent_home: Path | None = None) -> None:
     """Remove installed pptify assets from the user's agent home."""
     home = agent_home or _AGENT_HOME
+    agents_dst = home / "agents"
     skills_dst = home / "skills"
-    workflows_dst = home / "workflows"
-    plugin_dst = home / "pptify-plugin"
-    design_dst = home / "pptify-design"
+    plugin_dst = home / "scripts"
+    design_dst = home / "resources" / "design"
+    env_template_dst = home / "resources" / "env.template"
     policy_dst = home / "pptify-policy.md"
     instructions_dst = home / "copilot-instruction.md"
 
     removed: list[str] = []
     removed_assets = 0
+
+    if agents_dst.is_dir():
+        installed_agent_names = {
+            p.name for p in _AGENTS_SRC.glob("*.agent.md")
+        } if _AGENTS_SRC.is_dir() else set()
+        for agent_file in sorted(agents_dst.iterdir()):
+            if agent_file.is_file() and agent_file.name in installed_agent_names:
+                if dry_run:
+                    print(f"  [dry-run] Would remove agent: {agent_file}")
+                else:
+                    agent_file.unlink()
+                    print(f"  Removed agent: {agent_file}")
+                removed_assets += 1
+        if not dry_run and agents_dst.is_dir() and not any(agents_dst.iterdir()):
+            agents_dst.rmdir()
 
     if skills_dst.is_dir():
         for skill_dir in sorted(skills_dst.iterdir()):
@@ -424,24 +441,17 @@ def _uninstall(dry_run: bool = False, agent_home: Path | None = None) -> None:
                 print(f"  Removed {label}: {dst}")
             removed_assets += 1
 
-    if workflows_dst.is_dir():
-        wf_removed: list[str] = []
-        installed_workflow_names = {
-            p.name for p in _WORKFLOWS_SRC.iterdir()
-            if p.is_file()
-        } if _WORKFLOWS_SRC.is_dir() else set()
-        for wf_file in sorted(workflows_dst.iterdir()):
-            if wf_file.is_file() and wf_file.name in installed_workflow_names:
-                if dry_run:
-                    print(f"  [dry-run] Would remove workflow: {wf_file}")
-                else:
-                    wf_file.unlink()
-                    print(f"  Removed workflow: {wf_file}")
-                wf_removed.append(wf_file.name)
-                removed_assets += 1
-        if wf_removed and not _any_non_pptify_files(workflows_dst):
-            if not dry_run:
-                workflows_dst.rmdir()
+    if env_template_dst.exists():
+        if dry_run:
+            print(f"  [dry-run] Would remove env template: {env_template_dst}")
+        else:
+            env_template_dst.unlink()
+            print(f"  Removed env template: {env_template_dst}")
+        removed_assets += 1
+
+    resources_dst = home / "resources"
+    if resources_dst.is_dir() and not any(resources_dst.iterdir()) and not dry_run:
+        resources_dst.rmdir()
 
     if removed_assets == 0 and not removed:
         print(f"pptify is not installed in {home}.")
@@ -449,14 +459,6 @@ def _uninstall(dry_run: bool = False, agent_home: Path | None = None) -> None:
 
     msg = f"pptify uninstalled: {len(removed)} skill(s) removed from {skills_dst}"
     print(f"\n{('[dry-run] ' if dry_run else '')}{msg}")
-
-
-def _any_non_pptify_files(directory: Path) -> bool:
-    return any(
-        p for p in directory.iterdir()
-        if not p.name.startswith(_SKILL_PREFIX)
-    )
-
 
 # ---------------------------------------------------------------------------
 # Help
@@ -515,7 +517,7 @@ def _print_designs() -> None:
 
     print()
     print("Load a profile:")
-    print("  uv run python pptify-plugin/design/design_context_catalog.py \\")
+    print("  uv run python scripts/design/design_context_catalog.py \\")
     print("      --profile <id> --include-context --pretty")
     print()
     print("Show detail:  pptify help --profile <id>")
@@ -575,11 +577,11 @@ def _build_parser() -> argparse.ArgumentParser:
     # install
     install_p = subparsers.add_parser(
         "install",
-        help="Install pptify skills, tools, design context, instructions, and policy into ./.agent/.",
+        help="Install pptify agents, skills, tools, design context, instructions, and policy into ./.agent/.",
         description=(
-            "Copy all pptify-* skills from pptify-core/skills/ into "
-            "./.agent/skills/, copy workflow prompts from pptify-core/workflows/ "
-            "into ./.agent/workflows/, copy pptify-plugin/ and pptify-design/ "
+            "Copy pptify agents from agents/ into ./.agent/agents/, "
+            "copy all pptify-* skills from skills/ into ./.agent/skills/, "
+            "copy scripts/ and resources/design/ "
             "into ./.agent/, and seed the developer-protection policy and "
             "agent instruction file."
         ),
@@ -600,10 +602,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "uninstall",
         help="Remove installed pptify assets from ./.agent/.",
         description=(
-            "Remove all pptify-* skill directories from ./.agent/skills/, "
-            "remove workflow files installed by pptify, delete "
+            "Remove installed pptify agents from ./.agent/agents/, "
+            "remove all pptify-* skill directories from ./.agent/skills/, "
+            "delete "
             "./.agent/pptify-policy.md and ./.agent/copilot-instruction.md, "
-            "and remove ./.agent/pptify-plugin/ and ./.agent/pptify-design/."
+            "and remove ./.agent/scripts/ and ./.agent/resources/design/."
         ),
     )
     uninstall_p.add_argument(
@@ -622,8 +625,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "help",
         help="List available design profiles and plugin scripts.",
         description=(
-            "Show available pptify design profiles (from pptify-design/sources.json) "
-            "and plugin scripts (from pptify-plugin/). "
+            "Show available pptify design profiles (from resources/design/sources.json) "
+            "and plugin scripts (from scripts/). "
             "With no flags, both sections are shown."
         ),
     )

@@ -2,17 +2,17 @@
 
 Production install surface for the pptify generic coding-agent skill extension.
 
-`pptify-cli` copies the pptify skill set from `pptify-core/skills/` into the
-local agent home (`./.agent/`), copies the predefined design context, plugin
-tool set, and `.env.template`, seeds a default developer-protection policy, and
+`pptify-cli` copies the pptify agent and skill set from root-level `agents/`
+and `skills/` into the local agent home (`./.agent/`), copies the predefined design context, plugin
+tool set, and `resources/env.template`, seeds a default developer-protection policy, and
 provides explicit lifecycle commands.
 
-Runtime dependencies: `pptify-core`, `pptify-design`, `pptify-plugin`.
+Runtime dependencies: `agents`, `skills`, `resources/design`, `scripts`.
 
 ## Commands
 
 ```powershell
-pptify install              # copy skills, workflows, plugin/design assets, policy into ./.agent/
+pptify install              # copy agents, skills, plugin/design assets, policy into ./.agent/
 pptify install --dry-run    # preview without writing files
 pptify install --home <dir> # install into <dir>/.agent (e.g. temp/pptify-install-test/.agent)
 
@@ -30,11 +30,11 @@ pptify help --profile <id>  # print full JSON for one design profile
 
 | Artifact | Destination |
 | --- | --- |
-| `pptify-core/skills/pptify-*/SKILL.md` | `./.agent/skills/pptify-*/SKILL.md` |
-| `pptify-core/workflows/*.md` | `./.agent/workflows/*.md` |
-| `pptify-plugin/` | `./.agent/pptify-plugin/` |
-| `pptify-design/` | `./.agent/pptify-design/` |
-| `.env.template` | `./.agent/.env.template` |
+| `agents/*.agent.md` | `./.agent/agents/*.agent.md` |
+| `skills/pptify-*/SKILL.md` | `./.agent/skills/pptify-*/SKILL.md` |
+| `scripts/` | `./.agent/scripts/` |
+| `resources/design/` | `./.agent/resources/design/` |
+| `resources/env.template` | `./.agent/resources/env.template` |
 | Developer-protection policy | `./.agent/pptify-policy.md` |
 | Generic agent instruction | `./.agent/copilot-instruction.md` |
 
@@ -90,8 +90,8 @@ pptify help --designs
 Or load profile context directly:
 
 ```powershell
-uv run python pptify-plugin/design/design_context_catalog.py --list --pretty
-uv run python pptify-plugin/design/design_context_catalog.py --profile primer-primitives --include-context --pretty
+uv run python scripts/design/design_context_catalog.py --list --pretty
+uv run python scripts/design/design_context_catalog.py --profile primer-primitives --include-context --pretty
 ```
 
 | Profile | Best for |
