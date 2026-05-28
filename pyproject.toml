@@ -13,6 +13,7 @@ plugins = [
 	"beautifulsoup4>=4.12.0",
 	"icrawler>=0.6.10",
 	"markitdown[docx,pdf]>=0.1.5",
+	"onnxruntime>=1.20.0",
 	"tokenizers>=0.21.0",
 	"vtracer>=0.6.15",
 ]
