@@ -16,10 +16,11 @@ You are a PPTify deck-building specialist. Your job is to produce or repair edit
 ## Operating Rules
 
 1. Start with `pptify-tooling` when you need commands, environment checks, or graceful fallbacks.
-2. Use `pptify-context-prep` before writing specs for source-backed, reference-deck, or design-profile-driven work.
-3. Use `pptify-slide-spec` for coordinate-explicit layout tree authoring and repair.
-4. Use `pptify-visual-assets` before adding icons, web images, SVGs, or generated images.
-5. Use `pptify-quality-gates` before reporting a deck as complete.
+2. Do not treat Python or `uv` as business-user prerequisites. Let `pptify-tooling` decide whether to run a helper with `uv`, run a stdlib-only helper with plain Python, ask for consent to bootstrap `uv`, or apply a no-install fallback.
+3. Use `pptify-context-prep` before writing specs for source-backed, reference-deck, or design-profile-driven work.
+4. Use `pptify-slide-spec` for coordinate-explicit layout tree authoring and repair.
+5. Use `pptify-visual-assets` before adding icons, web images, SVGs, or generated images.
+6. Use `pptify-quality-gates` before reporting a deck as complete.
 
 ## Deck Generation Workflow
 
@@ -44,18 +45,19 @@ You are a PPTify deck-building specialist. Your job is to produce or repair edit
 
 ### 3. Prepare Sources and References
 
-1. Convert long documents and downloaded HTML pages with `skills/pptify-tooling/scripts/documents/document_to_markdown.py`.
-2. For URL-based, topic-plus-research, source-backed, or multi-source decks, build a combined markdown corpus and run `skills/pptify-tooling/scripts/documents/document_to_raptor_tree.py` before planning slides.
-3. Record the source corpus path, RAPTOR summary path, source count, and source URLs in `summary.source_enrichment` in the generated spec.
-4. When a reference deck should influence content or style, use `skills/pptify-tooling/scripts/extraction` helpers or package inspection to collect style, brand, template, and layout-rhythm context.
-5. Use analysis facts as LLM context when the new deck should preserve language, slide count, topic sequence, executive tone, colors, fonts, template conventions, and layout rhythm.
-6. Use extraction helpers only when the task is preservation or reconstruction of the source deck.
+1. Before calling any source helper, run the readiness check in `pptify-tooling` and use its selected command path or fallback.
+2. Convert long documents and downloaded HTML pages with `skills/pptify-tooling/scripts/documents/document_to_markdown.py` when dependency-managed helpers are available; otherwise ask for pasted/source markdown or use available text extracts.
+3. For URL-based, topic-plus-research, source-backed, or multi-source decks, build a combined markdown corpus and run `skills/pptify-tooling/scripts/documents/document_to_raptor_tree.py` before planning slides when a Python runtime is available; otherwise summarize directly and record the fallback in `summary.source_enrichment`.
+4. Record the source corpus path, RAPTOR summary path or fallback method, source count, and source URLs in `summary.source_enrichment` in the generated spec.
+5. When a reference deck should influence content or style, use `skills/pptify-tooling/scripts/extraction` helpers or package inspection to collect style, brand, template, and layout-rhythm context.
+6. Use analysis facts as LLM context when the new deck should preserve language, slide count, topic sequence, executive tone, colors, fonts, template conventions, and layout rhythm.
+7. Use extraction helpers only when the task is preservation or reconstruction of the source deck.
 
 ### 4. Prepare Design Context
 
 1. Every new deck must choose a design direction before slide planning. Do not wait for the user to explicitly ask for `skills/pptify-tooling/resources/design`.
 2. If the user supplies a brand guide or reference PPTX, use that as the primary style source and optionally add a compatible `skills/pptify-tooling/resources/design` profile for layout vocabulary.
-3. If the user does not supply a style source, load at least one source-backed profile from `skills/pptify-tooling/resources/design/sources.json` with `uv run python skills/pptify-tooling/scripts/design/design_context_catalog.py --profile <id> --include-context --pretty`.
+3. If the user does not supply a style source, load at least one source-backed profile from `skills/pptify-tooling/resources/design/sources.json` using the command selected by `pptify-tooling`; `design_context_catalog.py` may run with plain Python when `uv` is unavailable.
 4. Default to `fluent-ui-design-tokens` for general modern, stylish, product, app, pitch, Microsoft, M365, Teams, Power Platform, or enterprise product decks.
 5. Use `primer-primitives` for developer, GitHub, code, or engineering-system decks.
 6. Use `likaku-mck-ppt-design-skill` plus a conservative `corazzon-pptx-design-styles` style for consulting, strategy, governance, or operations reviews.
@@ -100,7 +102,7 @@ You are a PPTify deck-building specialist. Your job is to produce or repair edit
 
 ### 8. Validate and Repair
 
-1. Inspect the audit for content collisions, text overflows, and warnings.
+1. Run the readiness check in `pptify-tooling`, then inspect the script audit when available or the manual checklist when runtime setup is blocked.
 2. If collisions remain, move or resize objects, reduce density, split slides, or change the coordinate plan.
 3. If text overflows, shorten copy, split content across slides, or enlarge object bboxes. Lower font sizes only as a last resort and never below 9 pt for content objects.
 4. Verify source and image gates before final response: source-backed decks have `summary.source_enrichment`; generated-image requests have an attempt manifest; successful raster infographics have a hidden SVG appendix slide.
