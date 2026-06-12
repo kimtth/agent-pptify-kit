@@ -51,12 +51,10 @@ Use this skill before considering a generated PPTX complete.
 
 ## Verification Commands
 
-- Current workspace reality check: no importable `pptify/` package or `python -m pptify` CLI is present in this snapshot. Use the standalone audit plugin and package inspection unless the core renderer package is restored.
+- Use the standalone audit plugin and package inspection to validate generated decks.
 - Audit a layout-tree spec and run the full test suite:
 
 ```powershell
 uv run python skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
 uv run python -m unittest discover -s tests -v
 ```
-
-- If the core renderer package is restored, add renderer/CLI smoke tests before considering rendered deck behavior covered.

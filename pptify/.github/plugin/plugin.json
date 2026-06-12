@@ -21,7 +21,6 @@
   ],
   "skills": [
     "./skills/pptify-context-prep",
-    "./skills/pptify-deck-generation",
     "./skills/pptify-quality-gates",
     "./skills/pptify-slide-spec",
     "./skills/pptify-tooling",

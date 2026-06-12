@@ -13,7 +13,6 @@ description: "Command reference for pptify plugin tools. Use when looking up plu
 4. If `uv` is missing, ask before running the `uv` bootstrap in `references/toolkit-setup.md`.
 5. Ask before cloning or installing any optional external toolkit.
 6. Run helper scripts only after the toolkit path and runtime are ready, or apply the documented graceful fallbacks.
-7. Treat the renderer import check as diagnostic; current external toolkit installs helper scripts, not `python -m pptify`.
 
 ## Runtime Setup
 
@@ -90,20 +89,10 @@ If the workspace root already belongs to a different project, ask the user where
 | `pptify-context-prep` | Document-to-markdown conversion, RAPTOR summary, design profile loading | Ask the user to paste source content directly; load `references/design-profiles.md` from `pptify-context-prep` for bundled design profile guidance |
 | `pptify-visual-assets` | Icon search, image search, raster→SVG, infographic generation | Use `bbox` placeholder objects with descriptive `content.alt`; omit image objects rather than leaving them empty |
 | `pptify-quality-gates` | Spec audit via `audit.py` | Apply the manual checklist rules in that skill; skip the `audit.py` output check |
-| `pptify-deck-generation` | End-to-end PPTX render via `pptify` CLI | Stop and inform the user — PPTX generation requires the renderer; do not produce a partial artifact |
 
 **No-install helper coverage:**
 
 These helpers are safe to try with the detected plain-Python command (`py -3` on Windows when available, otherwise `python`) when `uv` is unavailable because they rely on the standard library for their default path: `design_context_catalog.py`, `audit.py`, `iconfy_search.py`, `raster_image_to_svg.py` in default embedded-raster mode, and `document_to_raptor_tree.py` with local deterministic embeddings. Dependency-managed helpers such as document conversion, web image crawling, vector tracing, and test runs should use `uv` or fall back gracefully.
-
-**Renderer reality check:**
-
-```powershell
-# Diagnostic only; this currently fails in the external toolkit
-uv run python -c "import pptify; print('renderer present')"
-```
-
-If the import fails with `ModuleNotFoundError: No module named 'pptify'`, the `python -m pptify` render command is unavailable. This is expected for the current external toolkit. Use standalone plugin scripts for all non-render steps, and do not claim that `uv sync` restores the renderer.
 
 ## Plugin Scripts
 
