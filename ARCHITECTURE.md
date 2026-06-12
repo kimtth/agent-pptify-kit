@@ -1,6 +1,6 @@
 # pptify Architecture
 
-This workspace snapshot is a VS Code agent plugin for PPTX generation plus local helper tools. The plugin root inside this repository is `pptify`. It does not contain an importable `pptify/` core renderer package or a `python -m pptify` command.
+This workspace snapshot is a VS Code agent plugin for PPTX generation plus local helper tools. The plugin root inside this repository is `pptify`.
 
 ## Current Components
 
@@ -38,7 +38,7 @@ The prompt assets still use the agent-coordinate contract for generated deck spe
 - Shapes should carry explicit shape, fill, and line style.
 - Image-model attempts must record provider, model or deployment, prompt path, output path, status, and error details when generation fails.
 
-In this snapshot, that contract is planning/audit context. There is no local renderer package that consumes the full layout tree and writes a PPTX from `python -m pptify`.
+In this snapshot, that contract is planning/audit context for authoring deck specs and building the PPTX through the available PowerPoint generation path.
 
 ## Image Generation Boundary
 
@@ -63,7 +63,3 @@ Restore with:
 ## Quality Gates
 
 For generated artifacts, use the standalone audit plugin and PPTX package inspection scripts/helpers to confirm slide count, hidden-slide metadata, media counts, and collision status.
-
-## Known Gaps
-
-- Prompt assets may still mention restored-renderer paths conditionally; treat them as unavailable unless a core renderer package is restored.

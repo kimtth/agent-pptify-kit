@@ -1,13 +1,53 @@
 ---
 name: pptify-context-prep
-description: "Prepare source material and design context before authoring a pptify deck spec. Use when converting documents, building RAPTOR summaries, analyzing reference PPTX decks, or selecting and loading bundled design profiles."
+description: "Prepare narrative framework, source material, and design context before authoring a pptify deck spec. Use when selecting a business/storytelling framework, converting documents, building RAPTOR summaries, analyzing reference PPTX decks, or selecting and loading bundled design profiles."
 ---
 
 # PPTify Context Prep
 
 > **Prerequisite:** Before running any plugin script in this skill, run the workspace detection check in `pptify-tooling`. If `skills/pptify-tooling/scripts/` is absent, follow the graceful-degradation steps there before continuing.
 
-Use this skill before writing a deck spec. It covers two parallel preparation tracks: **source context** (documents, research, reference PPTX) and **design context** (predefined style profiles from `skills/pptify-tooling/resources/design`).
+Use this skill before writing a deck spec. It covers three parallel preparation tracks: **narrative framework** (the business story spine), **source context** (documents, research, reference PPTX), and **design context** (predefined style profiles from `skills/pptify-tooling/resources/design`).
+
+## Business Framework & Narrative
+
+The business framework is defined by the user, not by the assistant. If the user has already specified a framework, use it directly. If no framework has been specified, present the available options and ask which one to use before planning the deck. Include `custom` when the user wants to provide their own structure, naming convention, or slide sequence. Do not auto-select a framework on the user's behalf.
+
+| Framework | Best for |
+|---|---|
+| `mckinsey` | Executive proposals, consulting deliverables, strategic recommendations |
+| `scqa` | Problem-solving presentations, situation analysis, incident reports |
+| `pyramid` | Complex arguments requiring strong logical structure |
+| `mece` | Issue decomposition, audits, multi-workstream analysis |
+| `action-title` | Executive communications where every slide must drive action |
+| `assertion-evidence` | Technical or academic presentations, research findings |
+| `exec-summary-first` | C-suite briefings, board decks, press releases |
+| `custom` | User-defined structures, organization-specific playbooks, hybrid narrative patterns |
+
+Use the selected framework as the starting narrative spine, then adapt slide count and evidence density to the user's source material.
+
+| Framework | Default slide spine |
+|---|---|
+| `mckinsey` | Title → executive summary → situation → complication → key question → recommendation → 2-3 evidence slides → options → roadmap → appendix |
+| `scqa` | Title → situation → complication → question → answer → evidence → implementation plan → summary |
+| `pyramid` | Title → main answer → argument 1 → argument 2 → argument 3 → evidence → summary |
+| `mece` | Title → issue tree → workstream slides → synthesis |
+| `action-title` | Title → action summary → action-titled content slides → next steps |
+| `assertion-evidence` | Title → overview assertion → assertion/evidence slides → conclusion |
+| `exec-summary-first` | Title → full answer on slide 2 → supporting detail → appendix |
+| `custom` | Ask for framework name, objective, slide sequence, title rules, layout preferences, and evidence expectations before planning |
+
+Record the resolved framework in `summary.business_framework`, including source, slide sequence, title rules, and approved assumptions.
+
+### Storytelling Principles
+
+- Apply the Pyramid Principle: put the conclusion first, make each slide title state the slide's conclusion or assertion, and avoid questions or vague labels.
+- Make every key message answer "So what?" for the audience.
+- Keep topics MECE: mutually exclusive and collectively exhaustive.
+- Write specific slide titles, such as "Azure AI cuts development costs by 40%" or "3 implementation patterns enable rapid onboarding," instead of generic labels like "About Azure AI" or "Implementation Patterns Overview."
+- Include concrete data, numbers, dates, owners, sources, or quantified directional signals in bullets when the source material supports them.
+- Keep speaker notes useful: two to three sentences, never empty and never just a dash.
+- Avoid generic statements; every bullet should be specific, defensible, and tied to the selected framework's role in the story.
 
 ## Source Documents
 
@@ -20,7 +60,7 @@ Use this skill before writing a deck spec. It covers two parallel preparation tr
 
 ## Reference PPTX
 
-- Use the importable helpers in `skills/pptify-tooling/scripts/extraction` or package inspection to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts. The `python -m pptify --analyze-pptx` command is unavailable unless the core renderer package is restored.
+- Use the importable helpers in `skills/pptify-tooling/scripts/extraction` or package inspection to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts.
 - Use the extracted facts as agent context when the new deck should follow a source deck's language, slide count, topic sequence, executive tone, colors, fonts, template conventions, and layout rhythm.
 - When authoring the new spec, translate `brands.primary_color`, `brands.accent_colors`, `brands.fonts`, `template.slide_size`, `template.layout_usage`, and `layout.slides[*].dominant_flow` into explicit `layout_tree` primitives, colors, typography, spacing, and coordinates.
 - Use extraction helpers when the goal is reconstructing or preserving an existing production deck rather than authoring a new editable deck.
@@ -62,6 +102,7 @@ uv run python skills/pptify-tooling/scripts/design/design_context_catalog.py --p
 
 ## Source-to-Deck Planning
 
+- Map the selected business framework to the deck outline before authoring visuals, and document the resolved framework in `summary.business_framework`.
 - Convert source material into one message per slide before authoring visual structure.
 - Treat charts and dashboard-style slides as source-evidence-driven exhibits; do not create generic metric or dashboard slides when the source corpus does not provide relevant data.
 - Preserve important terminology, product names, metrics, dates, and user-provided wording.

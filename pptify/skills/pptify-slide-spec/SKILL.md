@@ -124,7 +124,7 @@ Example skeleton:
 | Label / caption | 9–10 | 9 |
 | Footer / meta (Courier) | 8–9 | 8 |
 
-Decorative text (`classification: "layout_design"`) such as monogram numerals, rule labels, or background watermarks is exempt from the minimum floor.
+Decorative text (`classification: "layout_design"`) such as monogram numerals, rule labels, or background watermarks is exempt from the minimum floor. Footer or meta text rendered below 9 pt must use `classification: "layout_design"` to claim this exemption; any `classification: "content"` text must stay at 9 pt or above so the audit content font floor passes.
 
 ## Repair Rules
 

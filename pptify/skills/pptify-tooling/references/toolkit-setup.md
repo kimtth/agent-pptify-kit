@@ -14,7 +14,7 @@ The expected users are presentation and business users. Do not make Python or `u
 
 ## Install
 
-Do not clone or install this external repository automatically. First explain that the built-in awesome-copilot skill includes bundled references, while the external toolkit is only needed for helper-script execution. The current external toolkit does not provide an importable `pptify` renderer module. Continue only after the user explicitly asks to install it or confirms that helper execution is required.
+Do not clone or install this external repository automatically. First explain that the built-in awesome-copilot skill includes bundled references, while the external toolkit is only needed for helper-script execution. Continue only after the user explicitly asks to install it or confirms that helper execution is required.
 
 Before installing dependencies, check whether `uv` already exists:
 
@@ -127,11 +127,3 @@ Invoke-PptifyPython pptify/skills/pptify-tooling/scripts/design/design_context_c
 # Run a spec audit smoke test
 uv run python pptify/skills/pptify-tooling/scripts/audit/audit.py deck-spec.json
 ```
-
-Renderer check, for diagnostics only:
-
-```powershell
-uv run python -c "import pptify; print('renderer present')"
-```
-
-If this fails with `ModuleNotFoundError: No module named 'pptify'`, that is expected for the current external toolkit. Use the standalone bundled helper scripts and do not run `python -m pptify`.
