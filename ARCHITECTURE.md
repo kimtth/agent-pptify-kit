@@ -10,7 +10,6 @@ This workspace snapshot is a VS Code agent plugin for PPTX generation plus local
 - `pptify/skills/pptify-tooling/scripts/documents`: document-to-markdown and markdown-to-RAPTOR helpers bundled as support assets for the declared skills and agents.
 - `pptify/skills/pptify-tooling/scripts/design`: source-backed design context catalog loader for `pptify/skills/pptify-tooling/resources/design`.
 - `pptify/skills/pptify-tooling/scripts/images`: web image search, Iconify search, raster-to-SVG conversion, and OpenAI/Azure OpenAI infographic generation.
-- `pptify/skills/pptify-tooling/scripts/audit`: standalone content-region collision audit for layout-tree JSON specs.
 - `pptify/skills/pptify-tooling/scripts/extraction`: importable PPTX extraction and style-master analysis helpers.
 - `pptify/skills/pptify-tooling/resources/design`: local source-backed design context packs and attribution metadata.
 
@@ -23,7 +22,6 @@ Plugin scripts are called directly by file path and write JSON to stdout:
 ```powershell
 uv run python pptify/skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty
 uv run python pptify/skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py --provider auto --prompt "Cloud governance roadmap" --output-path infographic.png --pretty
-uv run python pptify/skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
 ```
 
 Extraction helpers are import APIs; load those modules with `importlib.util.spec_from_file_location(...)`.

@@ -39,7 +39,6 @@ Copy-Item pptify/skills/pptify-tooling/resources/env.template .env
 
 ```powershell
 uv run python pptify/skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty
-uv run python pptify/skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
 uv run python pptify/skills/pptify-tooling/scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty
 uv run python pptify/skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py --provider azure-openai --azure-endpoint "<endpoint>" --model "gpt-image-2" --prompt "..." --output-path out.png --pretty
 ```

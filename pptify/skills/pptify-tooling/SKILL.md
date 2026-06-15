@@ -88,11 +88,11 @@ If the workspace root already belongs to a different project, ask the user where
 |---|---|---|
 | `pptify-context-prep` | Document-to-markdown conversion, RAPTOR summary, design profile loading | Ask the user to paste source content directly; load `references/design-profiles.md` from `pptify-context-prep` for bundled design profile guidance |
 | `pptify-visual-assets` | Icon search, image search, raster→SVG, infographic generation | Use `bbox` placeholder objects with descriptive `content.alt`; omit image objects rather than leaving them empty |
-| `pptify-quality-gates` | Spec audit via `audit.py` | Apply the manual checklist rules in that skill; skip the `audit.py` output check |
+| `pptify-quality-gates` | Spec audit | Apply the manual checklist in `references/audit-checklist.md` from that skill |
 
 **No-install helper coverage:**
 
-These helpers are safe to try with the detected plain-Python command (`py -3` on Windows when available, otherwise `python`) when `uv` is unavailable because they rely on the standard library for their default path: `design_context_catalog.py`, `audit.py`, `iconfy_search.py`, `raster_image_to_svg.py` in default embedded-raster mode, and `document_to_raptor_tree.py` with local deterministic embeddings. Dependency-managed helpers such as document conversion, web image crawling, vector tracing, and test runs should use `uv` or fall back gracefully.
+These helpers are safe to try with the detected plain-Python command (`py -3` on Windows when available, otherwise `python`) when `uv` is unavailable because they rely on the standard library for their default path: `design_context_catalog.py`, `iconfy_search.py`, `raster_image_to_svg.py` in default embedded-raster mode, and `document_to_raptor_tree.py` with local deterministic embeddings. Dependency-managed helpers such as document conversion, web image crawling, vector tracing, and test runs should use `uv` or fall back gracefully.
 
 ## Plugin Scripts
 
@@ -106,5 +106,5 @@ These helpers are safe to try with the detected plain-Python command (`py -3` on
 | Search Iconify icons | `uv run python skills/pptify-tooling/scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --max-num 8 --pretty` |
 | Raster to SVG | `uv run python skills/pptify-tooling/scripts/images/raster_image_to_svg.py --source logo.png --output-path logo.svg --pretty` |
 | Generate infographic | `uv run python skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py --provider azure-openai --size "1024x1024" --prompt "..." --output-path out.png --pretty` |
-| Audit spec | `uv run python skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json` |
+| Audit spec | Apply the manual checklist in `skills/pptify-quality-gates/references/audit-checklist.md` |
 | Run tests | `uv run python -m unittest discover -s tests -v` |
