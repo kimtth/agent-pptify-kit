@@ -1,6 +1,5 @@
 # PPTify Manual Audit Checklist
 
-Load this file when `skills/pptify-tooling/scripts/audit/audit.py` is unavailable.  
 Apply every check manually to `deck-spec.json` before considering a deck production-ready.
 
 ## 1. Content Collisions
@@ -73,14 +72,6 @@ For slides mixing image/SVG objects with text:
 - **Pass:** image/SVG `z_index` is lower than all overlapping text objects.
 - **Fail:** image covers text → lower `z_index`, adjust bbox, or reclassify as `classification: "layout_design"`.
 - When a generated infographic exists as both raster and SVG: the raster must be on the **visible** slide; the SVG must be in a **hidden appendix** slide only.
-
-## 9. Audit Script (when toolkit is present)
-
-```powershell
-uv run python skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
-```
-
-Check `total_collisions`, `total_overflows`, `total_small_fonts`, and `warnings` per slide even when the numeric totals are zero.
 
 ## Completion Criterion
 

@@ -5,7 +5,7 @@ description: "Validate and repair pptify PPTX artifacts. Use when checking deck 
 
 # PPTify Quality Gates
 
-> **Prerequisite:** Before running `audit.py`, run the workspace detection check in `pptify-tooling`. If `skills/pptify-tooling/scripts/` is absent, load [`references/audit-checklist.md`](references/audit-checklist.md) and apply the manual checklist; it covers all 8 audit dimensions without requiring the script.
+> **Prerequisite:** Run the workspace detection check in `pptify-tooling` first. Apply the manual audit by loading [`references/audit-checklist.md`](references/audit-checklist.md); it covers all 8 audit dimensions.
 
 Use this skill before considering a generated PPTX complete.
 
@@ -13,7 +13,7 @@ Use this skill before considering a generated PPTX complete.
 
 1. Confirm required artifacts exist or collect missing paths before validating.
 2. Run the workspace detection check from `pptify-tooling`.
-3. Run `audit.py` when available; otherwise load `references/audit-checklist.md` and apply the manual checks.
+3. Load `references/audit-checklist.md` and apply the manual checks.
 4. Repair the spec or generation script, rebuild the PPTX, and rerun the audit.
 5. Stop only when collisions, overflows, small fonts, package checks, and design-context checks are clean or clearly reported.
 
@@ -29,7 +29,7 @@ Use this skill before considering a generated PPTX complete.
 
 - A production-ready generated deck should have zero content collisions.
 - A production-ready generated deck should have zero text overflows.
-- A production-ready generated deck should have zero `classification: "content"` objects with `style.font_size` below 9 pt. Run `uv run python skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json` and check `total_small_fonts`.
+- A production-ready generated deck should have zero `classification: "content"` objects with `style.font_size` below 9 pt. Apply the font-size check in `references/audit-checklist.md`.
 - Review audit `warnings` for each slide even when collisions and overflows are zero.
 - Check that slide count, language, tone, and major topic sequence match the user request or reference context.
 - Check that the selected design context profile matches the user request and that source-backed context was translated into explicit primitives, colors, spacing, typography, and bboxes.
@@ -51,10 +51,9 @@ Use this skill before considering a generated PPTX complete.
 
 ## Verification Commands
 
-- Use the standalone audit plugin and package inspection to validate generated decks.
-- Audit a layout-tree spec and run the full test suite:
+- Apply the manual checklist and package inspection to validate generated decks.
+- Audit a layout-tree spec with `references/audit-checklist.md`, then run the full test suite:
 
 ```powershell
-uv run python skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
 uv run python -m unittest discover -s tests -v
 ```

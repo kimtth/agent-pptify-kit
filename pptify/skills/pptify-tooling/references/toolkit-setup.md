@@ -75,7 +75,6 @@ Examples from the repository root:
 
 ```powershell
 Invoke-PptifyPython pptify/skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty
-Invoke-PptifyPython pptify/skills/pptify-tooling/scripts/audit/audit.py deck-spec.json --json
 ```
 
 If the workspace root belongs to another project, ask the user before cloning. Suggest a named subdirectory, e.g. `git clone https://github.com/kimtth/agent-pptify-kit pptify-kit`.
@@ -91,7 +90,6 @@ If the workspace root belongs to another project, ask the user before cloning. S
 | `pptify/skills/pptify-tooling/scripts/images/iconfy_search.py` | none (stdlib only) | Search Iconify icon library for SVG icons by query, collection, and hex color |
 | `pptify/skills/pptify-tooling/scripts/images/raster_image_to_svg.py` | none (stdlib); vtracer for --mode vector-trace | Convert raster images to SVG wrappers; optional vector trace mode |
 | `pptify/skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py` | none (stdlib only) | Generate infographic images via OpenAI or Azure OpenAI (no local fallback) |
-| `pptify/skills/pptify-tooling/scripts/audit/audit.py` | none (stdlib only) | Validate a deck spec JSON for collisions, overflows, small fonts, and warnings |
 | `pptify/skills/pptify-tooling/scripts/extraction/pptx_extractor.py` | base (python-pptx) | Extract slide text, style, layout, and media metadata from a reference PPTX |
 | `pptify/skills/pptify-tooling/scripts/extraction/pptx_style_master.py` | base (python-pptx) | Extract brand, template, and master-slide style facts from a reference PPTX |
 
@@ -123,7 +121,4 @@ uv run python pptify/skills/pptify-tooling/scripts/design/design_context_catalog
 
 # Or, when uv is unavailable but plain Python is available
 Invoke-PptifyPython pptify/skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty
-
-# Run a spec audit smoke test
-uv run python pptify/skills/pptify-tooling/scripts/audit/audit.py deck-spec.json
 ```
