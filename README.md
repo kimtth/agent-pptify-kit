@@ -6,11 +6,10 @@ Agent-driven PPTX toolkit as a VS Code plugin. Agents use bundled skills, tools,
 
 | Package | Purpose |
 | --- | --- |
-| [pptify/.github/plugin/plugin.json](pptify/.github/plugin/plugin.json) | VS Code/Copilot plugin metadata declaring exposed component folders |
-| [pptify/agents](pptify/agents) | Custom agents discovered by the plugin |
-| [pptify/skills](pptify/skills) | Agent Skills discovered by the plugin |
-| [pptify/skills/pptify-tooling/scripts](pptify/skills/pptify-tooling/scripts) | Bundled support scripts called by skills and agents |
-| [pptify/skills/pptify-tooling/resources/design](pptify/skills/pptify-tooling/resources/design) | Predefined design profiles and template context |
+| [pptify/.github/plugin/plugin.json](pptify/.github/plugin/plugin.json) | VS Code/Copilot plugin metadata |
+| [pptify/agents](pptify/agents) | Custom agents (main: pptify-slides-builder) |
+| [pptify/skills](pptify/skills) | Agent Skills (context prep, spec authoring, visual assets, quality gates) |
+| [pptify/skills/pptify-tooling/references](pptify/skills/pptify-tooling/references) | Import-only APIs for analyzing existing PPTX decks |
 
 The plugin manifest intentionally declares the supported Copilot component folders, `pptify/skills/` and `pptify/agents/`. The end-to-end deck-generation workflow is consolidated into the custom agent; scripts and resources are bundled inside `pptify/skills/pptify-tooling/` as support assets referenced by declared components.
 
@@ -18,37 +17,37 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
 ## Sample pptx
 
-[pptify-kit-stress-demo.pptx (densed and overcomplicated layout for stress testing)](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo.pptx)
+Two stress-test decks pack dense, deliberately over-complicated layouts that exercise every part of the toolkit. Each slide locks one design profile from the bundled [design-profiles catalog](pptify/skills/pptify-context-prep/references/design-profiles.md) and renders in that profile's real tokens.
 
-## Setup
+| Deck | Layouts | Open | Download |
+| --- | --- | --- | --- |
+| **pptify-kit-stress-demo-v2.pptx** | 50 | [Office viewer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo-v2.pptx) | [.pptx](docs/pptify-kit-stress-demo-v2.pptx) |
+| **pptify-kit-stress-demo.pptx** | 81 | [Office viewer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo.pptx) | [.pptx](docs/pptify-kit-stress-demo.pptx) |
 
-```powershell
-uv sync                    # base dependencies
-uv sync --extra plugins    # add source conversion, image search, vector tracing
-```
+### Preview &mdash; pptify-kit-stress-demo-v2.pptx (50 layouts)
 
-## Image Provider Credentials
+<p align="center">
+  <img src="docs/preview/pptify-kit-stress-demo-v2-contact-sheet.png" alt="Contact sheet of all 50 layouts in pptify-kit-stress-demo-v2.pptx" width="900">
+</p>
 
-When OpenAI or Azure OpenAI image generation is needed, create a local `.env` from `pptify/skills/pptify-tooling/resources/env.template` and fill the required provider values there. The image helper loads `.env` automatically; `.env` is git-ignored and must not be committed.
+### Preview &mdash; pptify-kit-stress-demo.pptx (81 layouts)
 
-```powershell
-Copy-Item pptify/skills/pptify-tooling/resources/env.template .env
-```
+<p align="center">
+  <img src="docs/preview/pptify-kit-stress-demo-contact-sheet.png" alt="Contact sheet of all 81 layouts in pptify-kit-stress-demo.pptx" width="900">
+</p>
 
-## Common Plugin Commands
+<!-- Slide images are rendered with PowerPoint via [render_pptx_previews.ps1](docs/generated/render_pptx_previews.ps1) and tiled into contact sheets by [make_stress_contact_sheets.py](docs/generated/make_stress_contact_sheets.py). -->
 
-```powershell
-uv run python pptify/skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty
-uv run python pptify/skills/pptify-tooling/scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --pretty
-uv run python pptify/skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py --provider azure-openai --azure-endpoint "<endpoint>" --model "gpt-image-2" --prompt "..." --output-path out.png --pretty
-```
+## Extraction APIs
 
-Extraction helpers (`extraction/pptx_extractor.py`, `extraction/pptx_style_master.py`) are import APIs — load them with `importlib.util.spec_from_file_location(...)`.
+Import-only helpers for analyzing existing PPTX decks:
 
-## External Assets
+```python
+import importlib.util
+spec = importlib.util.spec_from_file_location("pptx_extractor", "pptify/skills/pptify-tooling/references/pptx_extractor.py")
+extractor = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(extractor)
 
-The MiniLM ONNX model and tokenizer are not committed. Restore from the repository root:
-
-```powershell
-.\pptify\skills\pptify-tooling\scripts\download-external-assets.ps1
+# Use: extractor.PptxExtractor().extract_file(pptx_path)
+# Other methods: prompt_context(path), extract_path(folder, out_dir), analyze_path(path)
 ```
