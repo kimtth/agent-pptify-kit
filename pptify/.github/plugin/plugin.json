@@ -1,29 +1,29 @@
 {
-  "name": "pptify-plugin",
-  "description": "Generate production-ready PowerPoint decks with pptify skills, source ingestion, design-context selection, coordinate-explicit slide specs, visual assets, runtime tooling, and audit-driven quality gates.",
-  "version": "0.0.1",
+  "name": "pptify-slides-creation",
+  "description": "Generate production-ready, editable PowerPoint (PPTX) decks from Copilot chat: narrative strategy, design-context selection, coordinate-explicit slide specs, visual asset planning, import-only extraction tooling, and audit-driven quality gates.",
+  "version": "1.0.0",
   "author": {
     "name": "kimtth"
   },
   "repository": "https://github.com/kimtth/agent-pptify-kit",
   "license": "MIT",
   "keywords": [
-    "pptify",
     "powerpoint",
     "pptx",
     "presentations",
-    "slidedecks",
-    "slides",
-    "pptx-generation"
+    "slide-decks",
+    "deck-generation",
+    "slide-design",
+    "document-generation"
   ],
   "agents": [
     "./agents"
   ],
   "skills": [
     "./skills/pptify-context-prep",
-    "./skills/pptify-quality-gates",
     "./skills/pptify-slide-spec",
+    "./skills/pptify-visual-assets",
     "./skills/pptify-tooling",
-    "./skills/pptify-visual-assets"
+    "./skills/pptify-quality-gates"
   ]
 }

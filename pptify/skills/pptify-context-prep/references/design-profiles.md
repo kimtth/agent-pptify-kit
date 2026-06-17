@@ -1,7 +1,6 @@
 # PPTify Design Profile Catalog
 
-Source: `skills/pptify-tooling/resources/design/sources.json` - updated 2026-05-20.  
-Load this file when `skills/pptify-tooling/scripts/design/design_context_catalog.py` is unavailable.
+**This is the bundled reference for design profiles.** Use it for all new decks. Design context is built-in and always available.
 
 ## Quick-Select Guide
 
@@ -160,13 +159,7 @@ Load this file when `skills/pptify-tooling/scripts/design/design_context_catalog
 
 ## Using This Catalog
 
-**When the toolkit is present**, load full style context with:
-
-```powershell
-uv run python skills/pptify-tooling/scripts/design/design_context_catalog.py --profile <profile-id> --include-context --pretty
-```
-
-**When the toolkit is absent**, use the entries above to:
+Use the entries above to:
 
 1. Select the profile ID that best matches the user's audience, topic, and delivery context.
 2. Lock the palette, typography, and signature element conventions described in the profile's `source_signals`.

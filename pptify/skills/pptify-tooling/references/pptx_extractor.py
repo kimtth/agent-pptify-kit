@@ -128,6 +128,9 @@ class PptxExtractor:
             "text_objects": int(stats["text_objects"]),
             "placeholders": int(stats["placeholders"]),
             "lines_or_freeforms": int(stats["lines_or_freeforms"]),
+            "connectors": int(stats["connectors"]),
+            "smartart": int(stats["smartart"]),
+            "ole_objects": int(stats["ole_objects"]),
             "non_ascii_text": bool(stats["non_ascii_text"]),
             "notes_slides": int(stats["notes_slides"]),
             "package_media_files": media_files,
@@ -229,6 +232,7 @@ class PptxExtractor:
             for element_index, shape in enumerate(slide.shapes, start=1)
         ]
         title = _slide_title(objects.values()) or f"Slide {slide_index}"
+        background = _slide_background(slide)
         tree: dict[str, Any] = {
             "id": f"slide_{slide_index}",
             "title": title,
@@ -237,6 +241,7 @@ class PptxExtractor:
             "groups": groups,
             "objects": objects,
             "notes": notes,
+            "background": background,
         }
         return tree, stats, render_elements
 
@@ -246,12 +251,21 @@ class PptxExtractor:
         style: dict[str, Any] = {}
         if kind == "text":
             content["text"] = getattr(shape, "text", "")
+            paragraphs = _rich_text(shape)
+            if paragraphs:
+                content["paragraphs"] = paragraphs
             style.update(_text_style(shape))
         elif kind == "table":
             content["rows"] = [[cell.text for cell in row.cells] for row in shape.table.rows]
+            table_detail = _table_detail(shape)
+            if table_detail:
+                content["table"] = table_detail
             style["font_size"] = 8
         elif kind == "image":
             content["alt"] = getattr(shape, "name", "image")
+            crop = _image_crop(shape)
+            if crop:
+                content["crop"] = crop
             if asset_dir is not None:
                 image_data = _image_data(shape)
                 if image_data is None:
@@ -265,19 +279,34 @@ class PptxExtractor:
                     if relationship_id:
                         content["media_relationship_id"] = relationship_id
         elif kind == "chart":
-            content["title"] = getattr(shape, "name", "chart")
-        elif kind == "line":
+            content.update(_chart_detail(shape))
+        elif kind in {"smartart", "ole"}:
+            content["title"] = getattr(shape, "name", kind)
+            if getattr(shape, "has_text_frame", False) and getattr(shape, "text", "").strip():
+                content["text"] = shape.text
+        elif kind in {"line", "connector"}:
             box = _bbox(shape)
             x, y, w, h = box["x"], box["y"], box["width"], box["height"]
-            content.update({"x1": x, "y1": y, "x2": x + w, "y2": y + h})
-            style["line"] = "#6B7280"
+            content.update(_line_endpoints(shape, x, y, w, h))
+            line_style = _line_style(shape)
+            style["line"] = (line_style or {}).get("line_color") or "#6B7280"
+            if line_style:
+                style.update(line_style)
+            arrows = _connector_arrows(shape)
+            if arrows:
+                content["arrows"] = arrows
         elif getattr(shape, "has_text_frame", False) and getattr(shape, "text", ""):
             content["text"] = shape.text
+            paragraphs = _rich_text(shape)
+            if paragraphs:
+                content["paragraphs"] = paragraphs
             style.update(_text_style(shape))
         else:
-            content["shape"] = "rect"
+            content["shape"] = _geometry_name(shape) or "rect"
 
-        classification = "content" if kind in {"text", "table", "image", "chart"} else "layout_design"
+        _apply_visual_style(shape, kind, content, style)
+
+        classification = "content" if kind in {"text", "table", "image", "chart", "smartart"} else "layout_design"
         if kind == "shape" and content.get("text"):
             classification = "content"
         return {
@@ -320,8 +349,15 @@ def _kind(shape, shape_type: str) -> str:
         return "table"
     if getattr(shape, "has_chart", False):
         return "chart"
-    if "picture" in shape_type or hasattr(shape, "image"):
+    graphic_uri = _graphic_data_uri(shape)
+    if "diagram" in graphic_uri:
+        return "smartart"
+    if "ole" in graphic_uri:
+        return "ole"
+    if "picture" in shape_type or _has_image(shape):
         return "image"
+    if _is_connector(shape):
+        return "connector"
     if "line" in shape_type or "freeform" in shape_type or "connector" in shape_type:
         return "line"
     if getattr(shape, "has_text_frame", False) and getattr(shape, "text", "").strip():
@@ -352,6 +388,358 @@ def _text_style(shape) -> dict[str, Any]:
     except (AttributeError, IndexError):
         pass
     return style
+
+
+def _safe_attr(value: Any, name: str) -> Any:
+    if value is None:
+        return None
+    try:
+        return getattr(value, name)
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def _enum_name(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).split("(")[0].strip().split(".")[-1]
+    return text.lower() or None
+
+
+def _normalize_hex(value: str) -> str:
+    stripped = str(value).strip().lstrip("#")
+    if len(stripped) >= 6:
+        return f"#{stripped[:6].upper()}"
+    return f"#{stripped.upper()}"
+
+
+def _color_to_hex(color_format: Any) -> str | None:
+    if color_format is None:
+        return None
+    try:
+        if color_format.type is None:
+            return None
+    except (AttributeError, TypeError, ValueError):
+        return None
+    try:
+        rgb = color_format.rgb
+        if rgb is not None:
+            return _normalize_hex(str(rgb))
+    except (AttributeError, TypeError, ValueError):
+        pass
+    token = _enum_name(_safe_attr(color_format, "theme_color"))
+    if token:
+        return f"theme:{token}"
+    return None
+
+
+def _graphic_data_uri(shape) -> str:
+    element = getattr(shape, "_element", None)
+    if element is None or not element.tag.endswith("}graphicFrame"):
+        return ""
+    data = element.find(f".//{DRAWING_NS}graphicData")
+    return data.get("uri", "") if data is not None else ""
+
+
+def _is_connector(shape) -> bool:
+    element = getattr(shape, "_element", None)
+    return element is not None and element.tag.endswith("}cxnSp")
+
+
+def _has_image(shape) -> bool:
+    try:
+        return getattr(shape, "image", None) is not None
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
+def _image_crop(shape) -> dict[str, float] | None:
+    crop: dict[str, float] = {}
+    for attribute, key in (("crop_left", "left"), ("crop_right", "right"), ("crop_top", "top"), ("crop_bottom", "bottom")):
+        value = _safe_attr(shape, attribute)
+        if value:
+            crop[key] = round(float(value), 4)
+    return crop or None
+
+
+def _geometry_name(shape) -> str | None:
+    element = getattr(shape, "_element", None)
+    if element is None:
+        return None
+    preset = element.find(f".//{DRAWING_NS}prstGeom")
+    if preset is not None and preset.get("prst"):
+        return preset.get("prst")
+    if element.find(f".//{DRAWING_NS}custGeom") is not None:
+        return "custom"
+    return None
+
+
+def _geometry(shape) -> dict[str, Any] | None:
+    name = _geometry_name(shape)
+    if name == "custom":
+        return {"type": "custom"}
+    if name:
+        return {"type": "preset", "preset": name}
+    return None
+
+
+def _transform(shape) -> dict[str, Any] | None:
+    transform: dict[str, Any] = {}
+    rotation = getattr(shape, "rotation", 0) or 0
+    if rotation:
+        transform["rotation"] = round(float(rotation), 2)
+    element = getattr(shape, "_element", None)
+    if element is not None:
+        xfrm = element.find(f".//{DRAWING_NS}xfrm")
+        if xfrm is not None:
+            if xfrm.get("flipH") == "1":
+                transform["flip_h"] = True
+            if xfrm.get("flipV") == "1":
+                transform["flip_v"] = True
+    return transform or None
+
+
+def _gradient_stops(shape) -> list[str] | None:
+    element = getattr(shape, "_element", None)
+    if element is None:
+        return None
+    gradient = element.find(f".//{DRAWING_NS}gradFill")
+    if gradient is None:
+        return None
+    stops: list[str] = []
+    for stop in gradient.findall(f".//{DRAWING_NS}gs"):
+        srgb = stop.find(f"{DRAWING_NS}srgbClr")
+        if srgb is not None and srgb.get("val"):
+            stops.append(_normalize_hex(srgb.get("val")))
+            continue
+        scheme = stop.find(f"{DRAWING_NS}schemeClr")
+        if scheme is not None and scheme.get("val"):
+            stops.append(f"theme:{scheme.get('val')}")
+    return stops or None
+
+
+def _fill_style(shape) -> dict[str, Any] | None:
+    fill = _safe_attr(shape, "fill")
+    if fill is None:
+        return None
+    try:
+        fill_type = fill.type
+    except (AttributeError, TypeError, ValueError, NotImplementedError):
+        return None
+    name = _enum_name(fill_type)
+    if name in {None, "background"}:
+        return None
+    style: dict[str, Any] = {"fill_type": name}
+    if name == "solid":
+        color = _color_to_hex(_safe_attr(fill, "fore_color"))
+        if color:
+            style["fill_color"] = color
+    elif name == "gradient":
+        stops = _gradient_stops(shape)
+        if stops:
+            style["gradient_stops"] = stops
+    return style
+
+
+def _line_style(shape) -> dict[str, Any] | None:
+    line = _safe_attr(shape, "line")
+    if line is None:
+        return None
+    style: dict[str, Any] = {}
+    color = _color_to_hex(_safe_attr(line, "color"))
+    if color:
+        style["line_color"] = color
+    try:
+        width = line.width
+        if width is not None:
+            style["line_width_pt"] = round(width.pt, 2)
+    except (AttributeError, TypeError, ValueError):
+        pass
+    dash = _enum_name(_safe_attr(line, "dash_style"))
+    if dash:
+        style["line_dash"] = dash
+    return style or None
+
+
+def _line_endpoints(shape, x: float, y: float, width: float, height: float) -> dict[str, float]:
+    transform = _transform(shape) or {}
+    x1, x2 = (x + width, x) if transform.get("flip_h") else (x, x + width)
+    y1, y2 = (y + height, y) if transform.get("flip_v") else (y, y + height)
+    return {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
+
+
+def _connector_arrows(shape) -> dict[str, str] | None:
+    element = getattr(shape, "_element", None)
+    if element is None:
+        return None
+    line = element.find(f".//{DRAWING_NS}ln")
+    if line is None:
+        return None
+    arrows: dict[str, str] = {}
+    for tag, key in (("headEnd", "head"), ("tailEnd", "tail")):
+        end = line.find(f"{DRAWING_NS}{tag}")
+        if end is not None:
+            arrow_type = end.get("type")
+            if arrow_type and arrow_type != "none":
+                arrows[key] = arrow_type
+    return arrows or None
+
+
+def _rich_text(shape) -> list[dict[str, Any]] | None:
+    text_frame = getattr(shape, "text_frame", None)
+    if text_frame is None:
+        return None
+    paragraphs: list[dict[str, Any]] = []
+    for paragraph in text_frame.paragraphs:
+        runs: list[dict[str, Any]] = []
+        for run in paragraph.runs:
+            run_info: dict[str, Any] = {"text": run.text}
+            font = run.font
+            size = _safe_attr(font, "size")
+            if size is not None:
+                run_info["font_size"] = round(size.pt, 2)
+            if font.bold is not None:
+                run_info["bold"] = bool(font.bold)
+            if font.italic is not None:
+                run_info["italic"] = bool(font.italic)
+            if font.underline:
+                run_info["underline"] = True
+            if font.name:
+                run_info["font"] = font.name
+            color = _color_to_hex(_safe_attr(font, "color"))
+            if color:
+                run_info["color"] = color
+            address = _safe_attr(_safe_attr(run, "hyperlink"), "address")
+            if address:
+                run_info["hyperlink"] = address
+            runs.append(run_info)
+        paragraph_info: dict[str, Any] = {}
+        alignment = _enum_name(_safe_attr(paragraph, "alignment"))
+        if alignment:
+            paragraph_info["align"] = alignment
+        level = getattr(paragraph, "level", 0) or 0
+        if level:
+            paragraph_info["level"] = int(level)
+        if runs:
+            paragraph_info["runs"] = runs
+        elif paragraph.text:
+            paragraph_info["text"] = paragraph.text
+        if paragraph_info:
+            paragraphs.append(paragraph_info)
+    return paragraphs or None
+
+
+def _table_detail(shape) -> dict[str, Any] | None:
+    try:
+        table = shape.table
+    except (AttributeError, ValueError):
+        return None
+    rows = list(table.rows)
+    columns = list(table.columns)
+    detail: dict[str, Any] = {"row_count": len(rows), "col_count": len(columns)}
+    try:
+        detail["col_widths_in"] = [_inches(column.width or 0) for column in columns]
+    except (AttributeError, TypeError, ValueError):
+        pass
+    try:
+        detail["row_heights_in"] = [_inches(row.height or 0) for row in rows]
+    except (AttributeError, TypeError, ValueError):
+        pass
+    for flag in ("first_row", "last_row", "first_col", "last_col", "horz_banding", "vert_banding"):
+        if getattr(table, flag, None):
+            detail[flag] = True
+    merged: list[dict[str, int]] = []
+    for row_index, row in enumerate(rows):
+        for column_index, cell in enumerate(row.cells):
+            if getattr(cell, "is_merge_origin", False):
+                merged.append(
+                    {
+                        "row": row_index,
+                        "col": column_index,
+                        "span_rows": int(getattr(cell, "span_height", 1) or 1),
+                        "span_cols": int(getattr(cell, "span_width", 1) or 1),
+                    }
+                )
+    if merged:
+        detail["merged_cells"] = merged
+    return detail
+
+
+def _chart_detail(shape) -> dict[str, Any]:
+    detail: dict[str, Any] = {"title": getattr(shape, "name", "chart")}
+    try:
+        chart = shape.chart
+    except (AttributeError, ValueError):
+        return detail
+    chart_type = _enum_name(_safe_attr(chart, "chart_type"))
+    if chart_type:
+        detail["chart_type"] = chart_type
+    try:
+        if chart.has_title and chart.chart_title.text_frame.text.strip():
+            detail["chart_title"] = chart.chart_title.text_frame.text.strip()
+    except (AttributeError, TypeError, ValueError):
+        pass
+    try:
+        categories = [str(category) for category in chart.plots[0].categories if category is not None]
+        if categories:
+            detail["categories"] = categories[:50]
+    except (AttributeError, IndexError, TypeError, ValueError):
+        pass
+    series_payload: list[dict[str, Any]] = []
+    try:
+        for series in chart.series:
+            entry: dict[str, Any] = {}
+            name = _safe_attr(series, "name")
+            if name:
+                entry["name"] = str(name)
+            try:
+                entry["values"] = [value for value in series.values][:50]
+            except (AttributeError, TypeError, ValueError):
+                pass
+            if entry:
+                series_payload.append(entry)
+    except (AttributeError, TypeError, ValueError):
+        pass
+    if series_payload:
+        detail["series"] = series_payload
+    return detail
+
+
+def _slide_background(slide) -> dict[str, Any] | None:
+    try:
+        fill = slide.background.fill
+        fill_type = fill.type
+    except (AttributeError, TypeError, ValueError, NotImplementedError):
+        return None
+    name = _enum_name(fill_type)
+    if name in {None, "background"}:
+        return None
+    background: dict[str, Any] = {"fill_type": name}
+    if name == "solid":
+        color = _color_to_hex(_safe_attr(fill, "fore_color"))
+        if color:
+            background["color"] = color
+    elif name == "gradient":
+        stops = _gradient_stops(slide.background)
+        if stops:
+            background["gradient_stops"] = stops
+    return background
+
+
+def _apply_visual_style(shape, kind: str, content: dict[str, Any], style: dict[str, Any]) -> None:
+    geometry = _geometry(shape)
+    if geometry:
+        content["geometry"] = geometry
+    transform = _transform(shape)
+    if transform:
+        content["transform"] = transform
+    fill = _fill_style(shape)
+    if fill:
+        style.update(fill)
+    if kind not in {"line", "connector"}:
+        line_style = _line_style(shape)
+        if line_style:
+            style.update(line_style)
 
 
 def _image_data(shape) -> tuple[bytes, str, str | None, str] | None:
@@ -462,6 +850,12 @@ def _stat_key(slide_object: dict[str, Any]) -> str:
         return "text_objects"
     if kind == "line":
         return "lines_or_freeforms"
+    if kind == "connector":
+        return "connectors"
+    if kind == "smartart":
+        return "smartart"
+    if kind == "ole":
+        return "ole_objects"
     return "shapes"
 
 

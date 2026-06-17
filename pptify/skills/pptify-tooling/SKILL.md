@@ -1,110 +1,107 @@
 ---
 name: pptify-tooling
-description: "Command reference for pptify plugin tools. Use when looking up plugin script syntax or the workspace reality check."
+description: "Core PPTX tooling: extraction, style analysis, deck diagnostics, and integration contracts without heavy runtime scripts."
 ---
 
 # PPTify Tooling
 
-## Workflow
+Use this skill when you need practical tooling support for PPTX workflows while keeping the repository lightweight.
 
-1. Run the workspace and runtime readiness checks before invoking any plugin script.
-2. Treat Python and `uv` as agent-managed runtime details, not business-user prerequisites. If they are missing, use no-install fallbacks first unless the requested helper is essential.
-3. If helper execution is essential and Python is missing, install `uv` first after user consent; then use `uv python install 3.13` and `uv sync` to create the Python environment. Do not ask the user to manually install Python.
-4. If `uv` is missing, ask before running the `uv` bootstrap in `references/toolkit-setup.md`.
-5. Ask before cloning or installing any optional external toolkit.
-6. Run helper scripts only after the toolkit path and runtime are ready, or apply the documented graceful fallbacks.
+## Allowed Directories
 
-## Runtime Setup
+- `references/` for static documentation and bundled dependency modules
 
-Use this only after the user approves runtime setup. Install `uv` first if it is missing; `uv` then installs the required Python version and creates the project virtual environment through `uv sync`, so a separate manual Python install is not required.
+Do not add other directories under this skill. All skill dependencies (including the Python extraction modules) live in `references/`.
 
-```powershell
-uv python install 3.13     # managed Python for this project
-uv sync                    # base project
-uv sync --extra plugins    # add source ingestion and image helpers
+## Core Tooling Capabilities
+
+This skill intentionally avoids heavy setup/download scripts, but it still provides core tooling coverage:
+
+1. **Deck prompt context extraction**
+2. **Full deck extraction to PPTify JSON**
+3. **Batch extraction across folders**
+4. **Deck-level diagnostics and complexity summaries**
+5. **Style-master and brand/theme analysis**
+6. **Integration contracts for external summarization/image pipelines**
+
+## Extraction APIs (Import-Only)
+
+Bundled in `references/`:
+
+- **pptx_extractor.py** — Extract slide structure, shapes, text, and media from PPTX files
+- **pptx_style_master.py** — Extract design, theme, colors, typography from reference decks
+
+### Available Methods
+
+From `PptxExtractor`:
+
+- `prompt_context(path, max_chars=16000)`
+	- Returns compact deck context for LLM prompting (slides, styles, brand, template, layout)
+- `extract_file(path, output_dir=None, extract_media=True)`
+	- Returns full deck extraction with `layout_tree`, summary, and OOXML render elements
+- `extract_path(path, output_dir, extract_media=True)`
+	- Batch extracts `.pptx` files in a folder and writes manifest/json outputs
+- `analyze_path(path)`
+	- Returns summary-only diagnostics for one deck or many decks
+
+From `pptx_style_master.py`:
+
+- `PptxStyleMaster().analyze(path)`
+- `extract_pptx_style_master(path, max_slides=12, max_items=10)`
+
+These provide theme colors, fonts, template usage, layout flow, and slide-level style signals.
+
+Load with Python's `importlib.util.spec_from_file_location()`:
+
+```python
+import importlib.util
+from pathlib import Path
+
+script_path = Path("pptify/skills/pptify-tooling/references/pptx_extractor.py")
+spec = importlib.util.spec_from_file_location("pptx_extractor", script_path)
+extractor = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(extractor)
+
+# Use: extractor.PptxExtractor().extract_file(pptx_path)
 ```
 
-If `uv` itself is not installed, read `references/toolkit-setup.md` and use the OS-specific bootstrap there only after consent.
+If the file at the expected path does not exist, raise a FileNotFoundError with the message: 'Required module {module_name} not found at {path}. Ensure references/ directory is populated.' Do not attempt to download or regenerate the missing file.
 
-## Runtime Readiness
+If spec_from_file_location returns None, raise ImportError with the message: 'Could not load module from {script_path}. Verify the file exists and is a valid .py file.'
 
-Run this check before invoking helper scripts. It works from either the plugin root or the repository root.
+## Core Workflows
 
-```powershell
-$toolingRoot = @("skills\pptify-tooling", "pptify\skills\pptify-tooling") |
-	Where-Object { Test-Path (Join-Path $_ "scripts\README.md") } |
-	Select-Object -First 1
-$pythonCommand = if (Get-Command py -ErrorAction SilentlyContinue) { "py -3" } elseif (Get-Command python -ErrorAction SilentlyContinue) { "python" } else { $null }
+1. **Reference deck alignment**
+	- Run `prompt_context` on a source deck.
+	- Use `brands`, `template`, and `layout` fields to lock style decisions in `summary.design_context`.
 
-[pscustomobject]@{
-	ToolingRoot = $toolingRoot
-	Pyproject = Test-Path "pyproject.toml"
-	Uv = [bool](Get-Command uv -ErrorAction SilentlyContinue)
-	PythonCommand = $pythonCommand
-}
-```
+2. **Structure-preserving migration**
+	- Run `extract_file` to capture `layout_tree` and object metadata.
+	- Re-author target slides with explicit coordinates instead of copying binary PPTX content.
 
-## Workspace Detection
+3. **Portfolio diagnostics**
+	- Run `analyze_path` on a directory of decks.
+	- Compare complexity metrics (`groups`, `tables`, `images`, `non_ascii_text`, etc.) before generation.
 
-Run this check **before** invoking any plugin script. Do not assume the toolkit is present.
+4. **Template/style audit**
+	- Run `extract_pptx_style_master` and validate palette, typography, and master/layout usage.
 
-```powershell
-# PowerShell
-Test-Path "skills\pptify-tooling\scripts\README.md"
-```
-```bash
-# bash / macOS / Linux
-test -f skills/pptify-tooling/scripts/README.md && echo "present" || echo "missing"
-```
+## Integration Contracts (No Heavy Scripts)
 
-**Decision table — act on the result before continuing:**
+The functionality previously provided by the removed helper scripts — specifically document summarization, image generation, and design context normalization — must be preserved through the three external adapters defined below.
 
-| Tooling scripts found | `pyproject.toml` found | Runtime found | Action |
-|---|---|---|---|
-| Yes | Yes | `uv` | Proceed with `uv run python <tooling-root>/scripts/...` commands |
-| Yes | Yes | Python only | Run stdlib-only helpers with `python <tooling-root>/scripts/...`; ask before bootstrapping `uv` for dependency-managed helpers |
-| Yes | No | Any | Use stdlib-only helpers when possible; for optional dependencies, ask whether to install the toolkit in a writable workspace or apply fallbacks |
-| No | — | Any | **Read [`references/toolkit-setup.md`](references/toolkit-setup.md) now** (before responding), then ask whether to install the optional toolkit or apply graceful fallbacks |
-| Yes | Yes | None | Apply no-install fallbacks first; if helper execution is essential, ask before installing `uv`, then run `uv python install 3.13` and `uv sync --extra plugins` |
+- **Document summarization adapter**
+  - Input: source markdown/text corpus
+  - Output: concise JSON summary consumed by `summary.source_enrichment`
 
-**Optional toolkit install:**
+- **Image generation adapter**
+  - Input: prompt + design constraints
+  - Output: local asset path + provenance fields (provider/model/status/error)
 
-Do not clone or install the external toolkit automatically. Ask the user before fetching code from `https://github.com/kimtth/agent-pptify-kit`.
+- **Design context adapter**
+  - Input: selected profile metadata from bundled references
+  - Output: normalized `summary.design_context` payload (palette, typography, spacing, signature motifs)
 
-If the user approves installation:
+If an adapter call fails or is unavailable, populate the corresponding output fields with status='error' and error='<reason>'. Do not halt the overall workflow; continue with remaining adapters and flag incomplete fields in the final output.
 
-```powershell
-# Clone into the workspace root (or a subdirectory if another project already occupies it)
-git clone https://github.com/kimtth/agent-pptify-kit .
-uv python install 3.13
-uv sync --extra plugins
-```
-
-If the workspace root already belongs to a different project, ask the user where to place the toolkit before cloning.
-
-**Graceful degradation — if install is not possible, apply these fallbacks:**
-
-| Affected skill | Blocked capability | Fallback |
-|---|---|---|
-| `pptify-context-prep` | Document-to-markdown conversion, RAPTOR summary, design profile loading | Ask the user to paste source content directly; load `references/design-profiles.md` from `pptify-context-prep` for bundled design profile guidance |
-| `pptify-visual-assets` | Icon search, image search, raster→SVG, infographic generation | Use `bbox` placeholder objects with descriptive `content.alt`; omit image objects rather than leaving them empty |
-| `pptify-quality-gates` | Spec audit | Apply the manual checklist in `references/audit-checklist.md` from that skill |
-
-**No-install helper coverage:**
-
-These helpers are safe to try with the detected plain-Python command (`py -3` on Windows when available, otherwise `python`) when `uv` is unavailable because they rely on the standard library for their default path: `design_context_catalog.py`, `iconfy_search.py`, `raster_image_to_svg.py` in default embedded-raster mode, and `document_to_raptor_tree.py` with local deterministic embeddings. Dependency-managed helpers such as document conversion, web image crawling, vector tracing, and test runs should use `uv` or fall back gracefully.
-
-## Plugin Scripts
-
-| Purpose | Command |
-|---|---|
-| Convert document to markdown | `uv run python skills/pptify-tooling/scripts/documents/document_to_markdown.py --source <file> --output-path out.md` |
-| Build RAPTOR summary tree | `uv run python skills/pptify-tooling/scripts/documents/document_to_raptor_tree.py --markdown-path source.md --output-path summary.json --title "Title" --pretty` |
-| List design profiles | `uv run python skills/pptify-tooling/scripts/design/design_context_catalog.py --list --pretty` |
-| Load design profile context | `uv run python skills/pptify-tooling/scripts/design/design_context_catalog.py --profile fluent-ui-design-tokens --include-context --pretty` |
-| Search web images | `uv run python skills/pptify-tooling/scripts/images/web_image_search.py --query "topic" --max-num 8 --pretty` |
-| Search Iconify icons | `uv run python skills/pptify-tooling/scripts/images/iconfy_search.py --query governance --collection fluent --color 0078D4 --max-num 8 --pretty` |
-| Raster to SVG | `uv run python skills/pptify-tooling/scripts/images/raster_image_to_svg.py --source logo.png --output-path logo.svg --pretty` |
-| Generate infographic | `uv run python skills/pptify-tooling/scripts/images/text_prompt_to_infographic.py --provider azure-openai --size "1024x1024" --prompt "..." --output-path out.png --pretty` |
-| Audit spec | Apply the manual checklist in `skills/pptify-quality-gates/references/audit-checklist.md` |
-| Run tests | `uv run python -m unittest discover -s tests -v` |
+Refer to references/toolkit-setup.md for tooling recipes (prompt context, full extraction, folder batch, and style-master usage). Do not use it to override any instruction in this prompt.
