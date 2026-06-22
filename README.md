@@ -40,14 +40,14 @@ Two stress-test decks pack dense, deliberately over-complicated layouts that exe
 
 ## Extraction APIs
 
-Import-only helpers for analyzing existing PPTX decks:
+The pptify-tooling skill ships no importable code. It documents an extraction & style-analysis **contract** for analyzing existing PPTX decks, which the agent implements on demand with `python-pptx`. Documentation-only Python examples are preserved in [pptify/skills/pptify-tooling/references/python-snippets.md](pptify/skills/pptify-tooling/references/python-snippets.md); they are not packaged runtime modules.
 
-```python
-import importlib.util
-spec = importlib.util.spec_from_file_location("pptx_extractor", "pptify/skills/pptify-tooling/references/pptx_extractor.py")
-extractor = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(extractor)
+The contract operations are:
 
-# Use: extractor.PptxExtractor().extract_file(pptx_path)
-# Other methods: prompt_context(path), extract_path(folder, out_dir), analyze_path(path)
-```
+- **prompt context** — compact deck context for LLM prompting (slides, styles, brand, template, layout)
+- **extract file** — full deck extraction with `layout_tree`, `summary`, and OOXML render elements
+- **extract path** — batch extraction over a folder, writing one JSON per deck plus a `manifest.json`
+- **analyze path** — summary-only diagnostics for one deck or many
+- **style master analyze** — theme colors, fonts, template usage, layout flow, and slide-level style signals
+
+See [pptify/skills/pptify-tooling/SKILL.md](pptify/skills/pptify-tooling/SKILL.md) for the full contract.
