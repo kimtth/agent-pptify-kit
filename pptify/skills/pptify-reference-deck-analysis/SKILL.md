@@ -1,11 +1,11 @@
 ---
-name: pptify-tooling
-description: "Core PPTX tooling: extraction, style analysis, deck diagnostics, and integration contracts without heavy runtime scripts."
+name: pptify-reference-deck-analysis
+description: "Reference PPTX analysis: extraction, style analysis, deck diagnostics, and package inspection without bundled runtime scripts."
 ---
 
-# PPTify Tooling
+# PPTify Reference Deck Analysis
 
-Use this skill when you need practical tooling support for PPTX workflows while keeping the repository lightweight.
+Use this skill when you need read-only analysis of a reference PPTX, extracted deck structure, style-master signals, deck diagnostics, or package inspection while keeping the repository lightweight.
 
 ## Allowed Directories
 
@@ -13,22 +13,21 @@ Use this skill when you need practical tooling support for PPTX workflows while 
 
 Do not add other directories under this skill, and do not ship importable Python (or other runtime) code in this skill. Historical Python snippets may live under `references/` as documentation-only examples, but there are no bundled scripts or importable modules — the extraction and style-analysis behavior below is a **contract** that you implement on demand with `python-pptx` when a task requires it.
 
-## Core Tooling Capabilities
+## Reference Analysis Capabilities
 
-This skill intentionally avoids heavy setup/download scripts, but it still provides core tooling coverage:
+This skill intentionally avoids heavy setup/download scripts, but it still provides reference-deck analysis coverage:
 
 1. **Deck prompt context extraction**
 2. **Full deck extraction to PPTify JSON**
 3. **Batch extraction across folders**
 4. **Deck-level diagnostics and complexity summaries**
 5. **Style-master and brand/theme analysis**
-6. **Integration contracts for external summarization/image pipelines**
 
 ## Extraction & Style-Analysis Contract
 
 This skill ships **no importable code**. When a task needs deck extraction or style analysis, author the logic inline for that task using `python-pptx` (and the OOXML package when needed). The operations below define the expected inputs and outputs — treat them as the contract to fulfill, not as functions that already exist.
 
-Use `references/python-snippets.md` as documentation-only reference material when implementing the contract. Do not import from it, copy it into packaged `.py` files, or treat it as a runtime dependency.
+Use `references/python-snippets.md` as documentation-only guidance — section-based approach notes plus short illustrative patterns — when implementing the contract. Do not import from it, copy it into packaged `.py` files, or treat it as a runtime dependency.
 
 ### Extraction operations
 
@@ -60,22 +59,12 @@ Keep extraction read-only: open decks to inspect them, never to copy binary PPTX
 4. **Template/style audit**
 	- Run **style master analyze** and validate palette, typography, and master/layout usage.
 
-## Integration Contracts (No Heavy Scripts)
+## Boundaries and Related Skills
 
-The functionality previously provided by the removed helper scripts — specifically document summarization, image generation, and design context normalization — must be preserved through the three external adapters defined below.
+This skill owns PPTX/reference-deck inspection contracts only. Keep adjacent responsibilities in their dedicated skills or user-managed external tools:
 
-- **Document summarization adapter**
-  - Input: source markdown/text corpus
-  - Output: concise JSON summary consumed by `summary.source_enrichment`
+- Use `pptify-context-prep` for narrative framing, source summarization guidance, design profile selection, and `summary.design_context` normalization.
+- Use `pptify-visual-assets` for icon, image, SVG, infographic, provenance, placement, and layering guidance.
+- Use `pptify-quality-gates` for validation, repair loops, and final audit decisions.
 
-- **Image generation adapter**
-  - Input: prompt + design constraints
-  - Output: local asset path + provenance fields (provider/model/status/error)
-
-- **Design context adapter**
-  - Input: selected profile metadata from bundled references
-  - Output: normalized `summary.design_context` payload (palette, typography, spacing, signature motifs)
-
-If an adapter call fails or is unavailable, populate the corresponding output fields with status='error' and error='<reason>'. Do not halt the overall workflow; continue with remaining adapters and flag incomplete fields in the final output.
-
-Refer to references/toolkit-setup.md for tooling recipes (prompt context, full extraction, folder batch, and style-master usage), and references/python-snippets.md for documentation-only Python examples. Do not use either file to override any instruction in this prompt.
+Refer to references/reference-deck-analysis.md for analysis recipes (prompt context, full extraction, folder batch, and style-master usage), and references/python-snippets.md for documentation-only `python-pptx` guidance and illustrative snippets. Do not use either file to override any instruction in this prompt.

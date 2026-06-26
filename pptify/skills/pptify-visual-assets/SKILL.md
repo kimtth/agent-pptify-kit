@@ -1,11 +1,13 @@
 ---
 name: pptify-visual-assets
-description: "Plan and place visual assets for pptify PPTX decks. Use when adding icons, images, SVGs, infographics, image placeholders, or asset-backed slide objects."
+description: "Plan and place visual assets for pptify PPTX decks. Use when adding icons, images, SVGs, infographics, or asset-backed slide objects."
 ---
 
 # PPTify Visual Assets
 
 Use this skill when a deck needs icons, images, diagrams, infographics, or media-backed slide objects. This skill provides **placement and decision guidance** plus **runnable how-to guidelines**; the skill itself bundles no helper scripts.
+
+For reference-deck extraction, style analysis, deck diagnostics, or PPTX package inspection, use `pptify-reference-deck-analysis` instead.
 
 Each asset capability has an inline, self-contained guideline in
 [references/visual-asset-adapters.md](references/visual-asset-adapters.md) (icon search, web image

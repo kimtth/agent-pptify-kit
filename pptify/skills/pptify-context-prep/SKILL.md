@@ -57,7 +57,7 @@ Record the resolved framework in `summary.business_framework`, including source,
 
 ## Reference PPTX
 
-- Use the importable helpers in `skills/pptify-tooling/references`, or unzip the `.pptx` file and parse its XML contents directly, to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts.
+- Implement the on-demand extraction contract in `pptify-reference-deck-analysis` with `python-pptx`, or unzip the `.pptx` file and parse its XML contents directly, to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts.
 - If reference PPTX inspection fails or returns no usable data, notify the user, skip reference-derived context, and proceed using the selected design profile as the sole design source. Document this in `summary.design_context`.
 - Use the extracted facts as agent context when the new deck should follow a source deck's language, slide count, topic sequence, executive tone, colors, fonts, template conventions, and layout rhythm.
 - When authoring the new spec, translate `brands.primary_color`, `brands.accent_colors`, `brands.fonts`, `template.slide_size`, `template.layout_usage`, and `layout.slides[*].dominant_flow` into explicit `layout_tree` primitives, colors, typography, spacing, and coordinates.
@@ -71,13 +71,12 @@ Load [`references/design-profiles.md`](references/design-profiles.md) for the fu
 
 Use bundled design profiles; do not invent a new design template when the user asks for predefined templates.
 
-Apply profile rules in this priority order: (1) explicit user request for a named profile, (2) `likaku-mck-ppt-design-skill` if a consulting or strategy framework is selected, (3) `primer-primitives` if the deck is developer or GitHub-focused, (4) `corazzon-pptx-design-styles` only if the user explicitly requests multiple style options, and (5) `fluent-ui-design-tokens` for all remaining cases.
+Apply profile rules in this priority order: (1) explicit user request for a named profile, (2) `getdesign-md-design-systems` if the deck should visually match a specific real-world brand or product, (3) `fluent-ui-design-tokens` as the default for all other decks, (4) `primer-primitives` only when the deck is explicitly developer or GitHub-focused, and (5) `corazzon-pptx-design-styles` only if the user explicitly requests multiple style options.
 
-- Use `fluent-ui-design-tokens` as the default for remaining new decks, including Microsoft, M365, Teams, Power Platform, enterprise-aligned, general modern, stylish, product, app, pitch, or unspecified visual style requests.
+- Use `getdesign-md-design-systems` when the deck should visually echo a specific real-world brand or product (for example Apple, Stripe, Linear, Notion); fetch the matching DESIGN.md entry, lock its tokens in `summary.design_context`, and translate signals into `layout_tree` primitives without embedding scraped or proprietary assets.
+- Use `fluent-ui-design-tokens` as the default for all remaining new decks, including Microsoft, M365, Teams, Power Platform, enterprise-aligned, general modern, stylish, product, app, pitch, or unspecified visual style requests.
 - Use `primer-primitives` for GitHub-style product, developer, or token-driven engineering decks.
 - Use `corazzon-pptx-design-styles` when a broader modern style catalog or multiple visual direction options are explicitly useful. Pick one style from the catalog and lock its palette, typography, spacing, and signature element before layout planning.
-- Use `likaku-mck-ppt-design-skill` for consulting, strategy, governance, or operations decks that need action-title discipline and structured native PPTX layouts.
-- Use `awesome-copilot-design-agents` when the agent prompt itself needs design review, UX discovery, visual hierarchy, or accessibility framing.
 - Keep source attribution and license metadata attached to the context used.
 - If no catalog profile fits, use reference PPTX analysis, search for another public source, or ask the user for a source template.
 - Record selected profile IDs, source URLs, and style lock details in `summary.design_context` before building the PPTX.

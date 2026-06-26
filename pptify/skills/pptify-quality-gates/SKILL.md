@@ -5,7 +5,7 @@ description: "Validate and repair pptify PPTX artifacts. Use when checking deck 
 
 # PPTify Quality Gates
 
-> **Prerequisite:** Apply the manual audit by loading [`references/audit-checklist.md`](references/audit-checklist.md); it covers all 11 audit dimensions. Use the import-only extraction APIs in `pptify-tooling` when reference-deck or PPTX package inspection is needed.
+> **Prerequisite:** Apply the manual audit by loading [`references/audit-checklist.md`](references/audit-checklist.md); it covers all 11 audit dimensions. Use `pptify-reference-deck-analysis` when reference-deck or PPTX package inspection is needed.
 
 Use this skill before considering a generated PPTX complete.
 
