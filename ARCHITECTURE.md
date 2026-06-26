@@ -7,7 +7,7 @@ This workspace is a VS Code Copilot plugin for creating PowerPoint PPTX deck spe
 - `pptify/.github/plugin/plugin.json` — VS Code/Copilot plugin metadata
 - `pptify/agents/pptify-slides-builder.agent.md` — Main agent for spec generation and deck design workflow
 - `pptify/skills/` — Domain-specific guidance (context strategy, spec authoring, visual assets, quality validation)
-- `pptify/skills/pptify-tooling/` — Documents the extraction & style-analysis contract for existing PPTX decks (no importable bundled code)
+- `pptify/skills/pptify-reference-deck-analysis/` — Documents the extraction & style-analysis contract for existing PPTX decks (no importable bundled code)
   - extraction contract — slide structure, shapes, text, media
   - style-master contract — design, theme, colors, typography
   - `references/python-snippets.md` — documentation-only Python snippets, not runtime modules
@@ -25,7 +25,7 @@ The agent guides users through a 6-step deck specification process:
 
 ## Extraction APIs
 
-The pptify-tooling skill ships no importable code. It documents an extraction & style-analysis **contract** (inputs, outputs, JSON shapes) that the agent implements on demand with `python-pptx` to analyze reference decks or existing presentations. Historical Python snippets are retained as documentation in `references/python-snippets.md`, but they are not packaged modules.
+The pptify-reference-deck-analysis skill ships no importable code. It documents an extraction & style-analysis **contract** (inputs, outputs, JSON shapes) that the agent implements on demand with `python-pptx` to analyze reference decks or existing presentations. Historical Python snippets are retained as documentation in `references/python-snippets.md`, but they are not packaged modules.
 
 Users integrate external services (LLM APIs, image generation) in their own pipelines; PPTify provides spec guidance and the extraction contract, not infrastructure.
 

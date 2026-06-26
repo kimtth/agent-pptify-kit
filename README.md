@@ -9,9 +9,9 @@ Agent-driven PPTX toolkit as a VS Code plugin. Agents use bundled skills, tools,
 | [pptify/.github/plugin/plugin.json](pptify/.github/plugin/plugin.json) | VS Code/Copilot plugin metadata |
 | [pptify/agents](pptify/agents) | Custom agents (main: pptify-slides-builder) |
 | [pptify/skills](pptify/skills) | Agent Skills (context prep, spec authoring, visual assets, quality gates) |
-| [pptify/skills/pptify-tooling/references](pptify/skills/pptify-tooling/references) | Import-only APIs for analyzing existing PPTX decks |
+| [pptify/skills/pptify-reference-deck-analysis/references](pptify/skills/pptify-reference-deck-analysis/references) | Read-only reference-deck analysis recipes for existing PPTX decks |
 
-The plugin manifest intentionally declares the supported Copilot component folders, `pptify/skills/` and `pptify/agents/`. The end-to-end deck-generation workflow is consolidated into the custom agent; scripts and resources are bundled inside `pptify/skills/pptify-tooling/` as support assets referenced by declared components.
+The plugin manifest intentionally declares the supported Copilot component folders, `pptify/skills/` and `pptify/agents/`. The end-to-end deck-generation workflow is consolidated into the custom agent; reference-deck analysis guidance is bundled inside `pptify/skills/pptify-reference-deck-analysis/` as static documentation referenced by declared components.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
@@ -40,7 +40,7 @@ Two stress-test decks pack dense, deliberately over-complicated layouts that exe
 
 ## Extraction APIs
 
-The pptify-tooling skill ships no importable code. It documents an extraction & style-analysis **contract** for analyzing existing PPTX decks, which the agent implements on demand with `python-pptx`. Documentation-only Python examples are preserved in [pptify/skills/pptify-tooling/references/python-snippets.md](pptify/skills/pptify-tooling/references/python-snippets.md); they are not packaged runtime modules.
+The pptify-reference-deck-analysis skill ships no importable code. It documents an extraction & style-analysis **contract** for analyzing existing PPTX decks, which the agent implements on demand with `python-pptx`. Documentation-only Python examples are preserved in [pptify/skills/pptify-reference-deck-analysis/references/python-snippets.md](pptify/skills/pptify-reference-deck-analysis/references/python-snippets.md); they are not packaged runtime modules.
 
 The contract operations are:
 
@@ -50,4 +50,4 @@ The contract operations are:
 - **analyze path** — summary-only diagnostics for one deck or many
 - **style master analyze** — theme colors, fonts, template usage, layout flow, and slide-level style signals
 
-See [pptify/skills/pptify-tooling/SKILL.md](pptify/skills/pptify-tooling/SKILL.md) for the full contract.
+See [pptify/skills/pptify-reference-deck-analysis/SKILL.md](pptify/skills/pptify-reference-deck-analysis/SKILL.md) for the full contract.

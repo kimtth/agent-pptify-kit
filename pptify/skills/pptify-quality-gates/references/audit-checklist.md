@@ -60,7 +60,7 @@ For each normal content slide (exclude section headers and hidden appendix slide
 
 - Slide count is within ±2 of the user's requested count.
 - Topic sequence matches the requested business framework (McKinsey, SCQA, pyramid, etc.) or the user's stated structure.
-- If `likaku-mck-ppt-design-skill` or `gabberflast-academic-pptx-skill` context was used: every content slide has an **action title** (not a descriptive label). Run the ghost-deck test: read only slide titles — they must tell the full story on their own.
+- For action-title frameworks (e.g., `action-title`, McKinsey): every content slide has an **action title** (not a descriptive label). Run the ghost-deck test: read only slide titles — they must tell the full story on their own.
 
 ## 7. Hidden Slides
 
