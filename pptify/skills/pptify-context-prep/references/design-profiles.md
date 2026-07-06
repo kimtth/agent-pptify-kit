@@ -14,23 +14,23 @@
 ## Profiles
 
 ### `fluent-ui-design-tokens`
-**Name:** Fluent UI Design Token Guidance  
-**Kind:** design-system-context  
-**License:** MIT — Copyright (c) Microsoft Corporation  
-**Source:** [microsoft/fluentui](https://github.com/microsoft/fluentui/blob/master/docs/architecture/design-tokens.md)  
-**Token categories:** color, spacing, border radius, font, line height, stroke, shadow, duration, easing  
-**Themes:** webLightTheme, webDarkTheme, teamsLightTheme, teamsDarkTheme, teamsHighContrastTheme  
-**Agent rule:** Use design tokens instead of hardcoded colors, spacing, or typography values.  
+**Name:** Fluent UI Design Token Guidance
+**Kind:** design-system-context
+**License:** MIT — Copyright (c) Microsoft Corporation
+**Source:** [microsoft/fluentui](https://github.com/microsoft/fluentui/blob/master/docs/architecture/design-tokens.md)
+**Token categories:** color, spacing, border radius, font, line height, stroke, shadow, duration, easing
+**Themes:** webLightTheme, webDarkTheme, teamsLightTheme, teamsDarkTheme, teamsHighContrastTheme
+**Agent rule:** Use design tokens instead of hardcoded colors, spacing, or typography values.
 **Best for:** Microsoft-aligned decks, Teams, M365, Power Platform governance, enterprise product reviews
 
 ---
 
 ### `getdesign-md-design-systems`
-**Name:** getdesign.md — Production-grade DESIGN.md Brand Analyses (Live Fetch)  
-**Kind:** live-design-reference-context  
-**License:** Per-entry; independent analyses published by VoltAgent. Reference/inspiration only — **not** official, not affiliated with or endorsed by the brands, and not redistributable assets. All trademarks belong to their owners.  
-**Source:** [getdesign.md](https://getdesign.md/) · catalog: [getdesign.md/design-md](https://getdesign.md/design-md) · spec basis: Google Stitch's DESIGN.md · awesome list: [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md)  
-**Catalog size:** 300+ brand/product DESIGN.md analyses (e.g., Apple, Stripe, Linear, Notion, Vercel, Figma, Airbnb, Spotify, Tesla, IBM/Carbon, NVIDIA)  
+**Name:** getdesign.md — Production-grade DESIGN.md Brand Analyses (Live Fetch)
+**Kind:** live-design-reference-context
+**License:** Per-entry; independent analyses published by VoltAgent. Reference/inspiration only — **not** official, not affiliated with or endorsed by the brands, and not redistributable assets. All trademarks belong to their owners.
+**Source:** [getdesign.md](https://getdesign.md/) · catalog: [getdesign.md/design-md](https://getdesign.md/design-md) · spec basis: Google Stitch's DESIGN.md · awesome list: [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md)
+**Catalog size:** 300+ brand/product DESIGN.md analyses (e.g., Apple, Stripe, Linear, Notion, Vercel, Figma, Airbnb, Spotify, Tesla, IBM/Carbon, NVIDIA)
 
 **What getdesign.md is:** A browsable frontend for the open-source `awesome-design-md` collection. Each catalog entry is a single `DESIGN.md` file — a structured Markdown document (the format introduced by Google Stitch) that captures the *publicly observable* design language of a real website so a coding agent can use it as reference while building original UI. They are analyses of patterns, not pixel-exact reproductions of the source sites.
 
@@ -44,34 +44,34 @@
 
 **How users consume it (outside this skill):** The getdesign package offers an `add {slug}` action that drops the file into a project, or users can choose "Download DESIGN.md"; some entries also offer a full website starter kit at `…/design-md/kit`. Inside this skill, treat the page as a *read-only reference* — fetch and extract signals; do not run the installer.
 
-**Fetch contract:** Each entry is reachable at `https://getdesign.md/{slug}/design-md` (e.g., `https://getdesign.md/stripe/design-md`, `https://getdesign.md/linear.app/design-md`). Some slugs include the TLD (`linear.app`, `mistral.ai`, `x.ai`, `opencode.ai`). Browse `https://getdesign.md/design-md` to resolve the correct `{slug}`.  
-**Agent rule:** Use this profile only when the user asks for a deck that should match a specific real-world brand or product aesthetic. Fetch the matching DESIGN.md entry, extract the color tokens, type scale, spacing/radius/elevation foundations, and signature motifs, then lock them in `summary.design_context`. Translate signals into explicit `layout_tree` primitives — do not embed scraped images, screenshots, or copy proprietary brand assets/logos. Record the entry URL and the "independent analysis, not affiliated" disclaimer as the design source. If the fetch fails or no slug matches, fall back to a bundled profile and note the fallback.  
+**Fetch contract:** Each entry is reachable at `https://getdesign.md/{slug}/design-md` (e.g., `https://getdesign.md/stripe/design-md`, `https://getdesign.md/linear.app/design-md`). Some slugs include the TLD (`linear.app`, `mistral.ai`, `x.ai`, `opencode.ai`). Browse `https://getdesign.md/design-md` to resolve the correct `{slug}`.
+**Agent rule:** Use this profile only when the user asks for a deck that should match a specific real-world brand or product aesthetic. Fetch the matching DESIGN.md entry, extract the color tokens, type scale, spacing/radius/elevation foundations, and signature motifs, then lock them in `summary.design_context`. Translate signals into explicit `layout_tree` primitives — do not embed scraped images, screenshots, or copy proprietary brand assets/logos. Record the entry URL and the "independent analysis, not affiliated" disclaimer as the design source. If the fetch fails or no slug matches, fall back to a bundled profile and note the fallback.
 **Best for:** Decks that must visually echo a known product or company; brand-accurate palette/typography/foundation sourcing without maintaining a local copy
 
 ---
 
 ### `corazzon-pptx-design-styles`
-**Name:** corazzon/pptx-design-styles — 30 Modern PPTX Style Templates  
-**Kind:** pptx-style-template-context  
-**License:** MIT — Copyright TodayCode / corazzon contributors  
-**Source:** [corazzon/pptx-design-styles](https://github.com/corazzon/pptx-design-styles)  
-**30 styles:** Glassmorphism, Neo-Brutalism, Bento Grid, Dark Academia, Gradient Mesh, Claymorphism, Swiss International, Aurora Neon Glow, Retro Y2K, Nordic Minimalism, Typographic Bold, Duotone Color Split, Monochrome Minimal, Cyberpunk Outline, Editorial Magazine, Pastel Soft UI, Dark Neon Miami, Hand-crafted Organic, Isometric 3D Flat, Vaporwave, Art Deco Luxe, Brutalist Newspaper, Stained Glass Mosaic, Liquid Blob Morphing, Memphis Pop Pattern, Dark Forest Nature, Architectural Blueprint, Maximalist Collage, SciFi Holographic Data, Risograph Print  
-**Style families:** modern-ui, editorial, retro, technical, luxury, organic, experimental  
-**Source inputs per style:** hex colors, font pairings, layout rules, signature elements, avoid lists  
-**Agent rule:** Pick one style, lock its palette and typography, then translate visual effects into explicit pptify `layout_tree` primitives or documented raster accents. Do not mix styles accidentally.  
+**Name:** corazzon/pptx-design-styles — 30 Modern PPTX Style Templates
+**Kind:** pptx-style-template-context
+**License:** MIT — Copyright TodayCode / corazzon contributors
+**Source:** [corazzon/pptx-design-styles](https://github.com/corazzon/pptx-design-styles)
+**30 styles:** Glassmorphism, Neo-Brutalism, Bento Grid, Dark Academia, Gradient Mesh, Claymorphism, Swiss International, Aurora Neon Glow, Retro Y2K, Nordic Minimalism, Typographic Bold, Duotone Color Split, Monochrome Minimal, Cyberpunk Outline, Editorial Magazine, Pastel Soft UI, Dark Neon Miami, Hand-crafted Organic, Isometric 3D Flat, Vaporwave, Art Deco Luxe, Brutalist Newspaper, Stained Glass Mosaic, Liquid Blob Morphing, Memphis Pop Pattern, Dark Forest Nature, Architectural Blueprint, Maximalist Collage, SciFi Holographic Data, Risograph Print
+**Style families:** modern-ui, editorial, retro, technical, luxury, organic, experimental
+**Source inputs per style:** hex colors, font pairings, layout rules, signature elements, avoid lists
+**Agent rule:** Pick one style, lock its palette and typography, then translate visual effects into explicit pptify `layout_tree` primitives or documented raster accents. Do not mix styles accidentally.
 **Best for:** Choosing a predefined modern style from a broad catalog; generating multiple visual direction options before deck production
 
 ---
 
 ### `primer-primitives`
-**Name:** Primer Primitives Design Tokens  
-**Kind:** design-system-context  
-**License:** MIT — Copyright (c) 2018 GitHub Inc.  
-**Source:** [primer/primitives](https://github.com/primer/primitives)  
-**Token categories:** color, spacing, typography, motion, z-index  
-**Spacing scale:** xxs, xs, sm, md, lg, xl  
-**Typography roles:** display, title, subtitle, body, caption, codeBlock, codeInline  
-**Color examples:** `#ffffff`, `#1f2328`, `#F6F8FA`, `#0969da`, `#1a7f37`, `#cf222e`  
+**Name:** Primer Primitives Design Tokens
+**Kind:** design-system-context
+**License:** MIT — Copyright (c) 2018 GitHub Inc.
+**Source:** [primer/primitives](https://github.com/primer/primitives)
+**Token categories:** color, spacing, typography, motion, z-index
+**Spacing scale:** xxs, xs, sm, md, lg, xl
+**Typography roles:** display, title, subtitle, body, caption, codeBlock, codeInline
+**Color examples:** `#ffffff`, `#1f2328`, `#F6F8FA`, `#0969da`, `#1a7f37`, `#cf222e`
 **Best for:** GitHub-style decks, developer products, token-driven UI reviews, engineering documentation
 
 Use the entries above to:

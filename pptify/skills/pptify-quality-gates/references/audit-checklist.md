@@ -20,7 +20,7 @@ For each text object estimate whether its text fits within its bbox.
 
 Rough capacity (Latin):
 - Characters per line ≈ `(bbox.w × 10) / font_size`
-- Lines available ≈ `(bbox.h × 72) / (font_size × 1.2)`  
+- Lines available ≈ `(bbox.h × 72) / (font_size × 1.2)`
   _(bbox in inches, font_size in pt)_
 
 Adjustments:
@@ -28,7 +28,7 @@ Adjustments:
 - **Text on a shape/card:** subtract ≈0.1 in of inner padding from each side of the shape before computing capacity; the text occupies the inset inner area, not the full shape.
 
 - **Pass:** estimated text volume ≤ available capacity.
-- **Fail:** likely overflow → shorten bullets, enlarge bbox, or split slide.  
+- **Fail:** likely overflow → shorten bullets, enlarge bbox, or split slide.
   **Never set `font_size` below 9 pt for `classification: "content"` objects.**
 
 ## 3. Font Size Minimums
@@ -99,5 +99,5 @@ For every `kind: "table"` object:
 
 ## Completion Criterion
 
-All 11 checks pass before delivery.  
+All 11 checks pass before delivery.
 Any failure triggers the repair loop in `pptify-quality-gates`: fix the spec, rebuild, and re-audit.

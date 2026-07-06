@@ -56,8 +56,4 @@ Use this skill before considering a generated PPTX complete.
 ## Verification Commands
 
 - Apply the manual checklist and package inspection to validate generated decks.
-- Audit a layout-tree spec with `references/audit-checklist.md`, then run the full test suite:
-
-```powershell
-uv run python -m unittest discover -s tests -v
-```
+- Audit a layout-tree spec with `references/audit-checklist.md`, then run the full test suite.
