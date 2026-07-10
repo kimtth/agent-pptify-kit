@@ -1,13 +1,27 @@
-# pptify Architecture
+---
+title: PPTX Deck Creation Architecture
+description: Architecture for the editable, native-object PPTX deck creation plugin.
+author: PPTX Deck Creation maintainers
+ms.date: 2026-07-10
+ms.topic: architecture
+keywords:
+  - PowerPoint
+  - PPTX
+  - python-pptx
+estimated_reading_time: 4
+---
 
-This workspace is a VS Code Copilot plugin for creating PowerPoint PPTX deck specifications. The plugin root is `pptify`.
+## PPTX Deck Creation Architecture
+
+This workspace is a VS Code Copilot plugin for creating editable PowerPoint
+PPTX decks. The plugin directory is `pptify`.
 
 ## Plugin Components
 
-- `pptify/.github/plugin/plugin.json` — VS Code/Copilot plugin metadata
-- `pptify/agents/pptify-slides-builder.agent.md` — Main agent for spec generation and deck design workflow
-- `pptify/skills/` — Domain-specific guidance (context strategy, spec authoring, visual assets, quality validation)
-- `pptify/skills/pptify-reference-deck-analysis/` — Documents the extraction & style-analysis contract for existing PPTX decks (no importable bundled code)
+- `pptify/.github/plugin/plugin.json` - VS Code/Copilot plugin metadata
+- `pptify/agents/pptx-builder.agent.md` - Main agent for editable PPTX creation
+- `pptify/skills/` - Guidance for narrative, specifications, assets, reference analysis, and quality checks
+- `pptify/skills/pptx-reference-deck-analysis/` - Read-only extraction and style-analysis contract for existing decks
   - extraction contract — slide structure, shapes, text, media
   - style-master contract — design, theme, colors, typography
   - `references/python-snippets.md` — documentation-only Python snippets, not runtime modules
@@ -16,18 +30,26 @@ This workspace is a VS Code Copilot plugin for creating PowerPoint PPTX deck spe
 
 The agent guides users through a 6-step deck specification process:
 
-1. **Understand the Goal** — Gather business context, audience, narrative framework
-2. **Design Strategy** — Select design direction and visual system
-3. **Plan Slide Structure** — Map business framework to slide outline
-4. **Spec Authoring** — Generate coordinate-explicit JSON specification
-5. **Quality Validation** — Verify design context and styling consistency
-6. **Response Contract** — Output structured JSON with validation status
+1. **Understand the request** - Gather the audience, decision, narrative framework, and source facts
+2. **Set the design direction** - Select the brand or design profile and document the visual rules
+3. **Plan the deck** - Map the approved framework to a slide outline
+4. **Author the specification** - Generate a coordinate-explicit JSON layout tree
+5. **Build the PPTX** - Use a small task-specific `python-pptx` builder when a file is required
+6. **Check and repair** - Validate the specification, PPTX package, geometry, accessibility, and rendered preview
 
 ## Extraction APIs
 
-The pptify-reference-deck-analysis skill ships no importable code. It documents an extraction & style-analysis **contract** (inputs, outputs, JSON shapes) that the agent implements on demand with `python-pptx` to analyze reference decks or existing presentations. Historical Python snippets are retained as documentation in `references/python-snippets.md`, but they are not packaged modules.
+The `pptx-reference-deck-analysis` skill ships no importable code. It documents an
+extraction and style-analysis contract that the agent implements on demand with
+`python-pptx`. Historical Python snippets remain documentation only. They are
+not packaged modules.
 
-Users integrate external services (LLM APIs, image generation) in their own pipelines; PPTify provides spec guidance and the extraction contract, not infrastructure.
+## Editable Content Policy
+
+The deck's title, message, data, labels, diagrams, and tables must be native
+PowerPoint objects. Images may support a slide, but an image cannot be the
+slide's only meaningful content. The plugin provides design guidance and
+extraction contracts, not hosted infrastructure or a generic renderer.
 
 ## Data Contracts
 
@@ -38,3 +60,6 @@ Generated deck specs use explicit coordinates:
 - Shapes/lines: explicit fill, stroke, endpoints
 - Images (object): `content.path` or `content.blob_base64`, plus `content.alt`
 - Image provenance (separate manifest): provider, model, prompt path, status, error details
+- Layout policy: safe margin, content bottom, footer top, and minimum gap
+- Accessibility: document language, presentation title, and per-slide reading order
+- Source lineage: source ID, evidence locator, claim type, and verification status
