@@ -3,19 +3,21 @@
 Agent-driven PPTX toolkit for VS Code. It creates editable PowerPoint decks
 with coordinate-explicit specifications and native PPTX objects.
 
-The plugin directory is [pptify](pptify). The manifest is
-[pptify/.github/plugin/plugin.json](pptify/.github/plugin/plugin.json).
+The GitHub Copilot plugin directory is
+[pptx-deck-creation](pptx-deck-creation). Its manifest is
+[pptx-deck-creation/.github/plugin/plugin.json](pptx-deck-creation/.github/plugin/plugin.json).
+The portable Agentic Plugin Marketplace staging artifacts are in
+[pptx-deck-creation-agentic-plugin](pptx-deck-creation-agentic-plugin).
 
-| Package | Purpose |
-| --- | --- |
-| [pptify/.github/plugin/plugin.json](pptify/.github/plugin/plugin.json) | VS Code/Copilot plugin metadata |
-| [pptify/agents](pptify/agents) | Custom agents (main: `pptx-builder`) |
-| [pptify/skills](pptify/skills) | Skills for context, specifications, assets, analysis, and quality checks |
-| [pptify/skills/pptx-reference-deck-analysis/references](pptify/skills/pptx-reference-deck-analysis/references) | Read-only reference-deck analysis recipes |
+| Package | Distribution | Purpose |
+| --- | --- | --- |
+| [pptx-deck-creation](pptx-deck-creation) | GitHub Copilot plugin | Full plugin distribution: agent, deck-context, specification, visual-assets, reference-analysis, OOXML, and quality-gate skills |
+| [pptx-deck-creation-agentic-plugin](pptx-deck-creation-agentic-plugin) | [wshobson/agents](https://github.com/wshobson/agents) | Portable marketplace staging artifacts for Claude Code, Codex CLI, Cursor, OpenCode, Gemini CLI, and GitHub Copilot |
+| [pptx-deck-creation-compact](pptx-deck-creation-compact) | [sickn33/agentic-awesome-skills](https://github.com/sickn33/agentic-awesome-skills) | Compact single-skill distribution for the Agentic Awesome Skills catalog |
 
 The plugin manifest declares the supported agent and skill paths. The workflow is
 in the custom agent. Reference-deck analysis remains static documentation in
-[pptify/skills/pptx-reference-deck-analysis](pptify/skills/pptx-reference-deck-analysis).
+[pptx-deck-creation/skills/pptx-reference-deck-analysis](pptx-deck-creation/skills/pptx-reference-deck-analysis).
 
 The output remains editable: titles, text, data labels, tables, charts, and
 diagrams use native PowerPoint objects. Images support the slide but never make
@@ -65,3 +67,20 @@ The contract operations are:
 
 See [pptify/skills/pptx-reference-deck-analysis/SKILL.md](pptify/skills/pptx-reference-deck-analysis/SKILL.md)
 for the full contract.
+
+## OOXML Package Inspection
+
+For existing-deck details that `python-pptx` cannot expose, the
+[pptx-ooxml skill](pptify/skills/pptx-ooxml/SKILL.md) supplies safe, read-only
+tools to inspect the package relationship graph, theme, masters, layouts,
+notes, comments, animations, and media. It never mutates a supplied reference
+deck or copies binary parts into a generated deck.
+
+For production decks, its package-integrity check reports malformed XML, broken
+internal relationships, missing content-type declarations, duplicate layout
+relationships, and orphaned media or notes.
+
+When a reference deck is a template, build a zero-based, read-only layout
+catalog before planning the new deck. It records reusable layout evidence only;
+the target deck is still re-authored with independent coordinates and native
+objects.

@@ -25,6 +25,10 @@ PPTX decks. The plugin directory is `pptify`.
   - extraction contract — slide structure, shapes, text, media
   - style-master contract — design, theme, colors, typography
   - `references/python-snippets.md` — documentation-only Python snippets, not runtime modules
+- `pptify/skills/pptx-ooxml/` - Safe, read-only OOXML inspection for package-level facts
+  - `scripts/inspect.py` — compact relationship, theme, slide, notes, comments, animation, and media report
+  - `scripts/unpack.py` — bounded safe extraction and formatted XML for raw-part review
+  - `scripts/validate_package.py` — read-only package-integrity report for XML, relationships, content types, and orphaned parts
 
 ## Workflow
 
@@ -41,8 +45,14 @@ The agent guides users through a 6-step deck specification process:
 
 The `pptx-reference-deck-analysis` skill ships no importable code. It documents an
 extraction and style-analysis contract that the agent implements on demand with
-`python-pptx`. Historical Python snippets remain documentation only. They are
-not packaged modules.
+`python-pptx`. When raw package details are required, the separate `pptx-ooxml`
+skill safely parses OOXML read-only. Historical Python snippets remain documentation
+only. They are not packaged modules.
+
+Reference templates are cataloged read-only by zero-based source slide index,
+layout role, usable regions, placeholder roles, visual structures, and reuse
+constraints. The catalog informs target layout choices but never authorizes
+copying or mutation of the source deck.
 
 ## Editable Content Policy
 
