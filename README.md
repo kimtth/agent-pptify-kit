@@ -34,8 +34,15 @@ and renders in that profile's real tokens.
 
 | Deck | Layouts | Open | Download |
 | --- | --- | --- | --- |
+| **pptify-kit-stress-demo-v3.pptx** | 60 | [Office viewer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo-v3.pptx) | [.pptx](docs/pptify-kit-stress-demo-v3.pptx) |
 | **pptify-kit-stress-demo-v2.pptx** | 50 | [Office viewer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo-v2.pptx) | [.pptx](docs/pptify-kit-stress-demo-v2.pptx) |
 | **pptify-kit-stress-demo.pptx** | 81 | [Office viewer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo.pptx) | [.pptx](docs/pptify-kit-stress-demo.pptx) |
+
+### Preview &mdash; pptify-kit-stress-demo-v3.pptx (60 layouts)
+
+<p align="center">
+  <img src="docs/preview/pptify-kit-stress-demo-v3-contact-sheet.png" alt="Contact sheet of all 60 layouts in pptify-kit-stress-demo-v3.pptx" width="900">
+</p>
 
 ### Preview &mdash; pptify-kit-stress-demo-v2.pptx (50 layouts)
 

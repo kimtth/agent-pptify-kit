@@ -68,6 +68,12 @@ This PR is intended to address the #1848 maintainability concern directly: the p
 
 The following sample decks demonstrate the kind of editable PowerPoint output that the workflow is designed to help users plan and review. They are examples only; they are not required runtime assets for this plugin.
 
+**Preview: 60 layouts — current V3 native-object stress suite**
+
+- [Office viewer - PPTX](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo-v3.pptx)
+
+![Contact sheet of all 60 layouts in pptify-kit-stress-demo-v3.pptx](https://raw.githubusercontent.com/kimtth/agent-pptify-kit/refs/heads/main/docs/preview/pptify-kit-stress-demo-v3-contact-sheet.png)
+
 **Preview: 50 layouts**
 
 - [Office viewer - PPTX](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fkimtth%2Fpptify-kit%2Fmain%2Fdocs%2Fpptify-kit-stress-demo-v2.pptx)

@@ -2,7 +2,7 @@
 name: pptx-deck-creation
 description: "Create editable, production-ready PPTX decks with narrative planning, explicit layout specs, asset guidance, and quality checks."
 category: office-productivity
-risk: safe
+risk: critical
 source: community
 source_repo: kimtth/agent-pptify-kit
 source_type: community
@@ -154,8 +154,10 @@ Own net-new PPTX creation in this workflow. When a PPTX file is required,
 create a small task-specific builder with the user's approved environment. Start
 slides from a blank layout and create native objects from the final bounding
 boxes. Enable word wrap, disable automatic text resizing, set text insets and
-alignment explicitly, and reject zero or negative bounding boxes before
-building.
+alignment explicitly, and reject zero or negative bounding boxes for non-line
+objects before building. Validate lines by requiring two distinct endpoints;
+horizontal and vertical lines may have a zero-height or zero-width bounding
+box.
 
 Save the authored specification, PPTX, build manifest, audit records, and
 source manifest together. Do not add a large shared renderer or copy source
@@ -181,7 +183,11 @@ with the slide ID, object ID, reason, owner, and review date.
 
 The skill provides a read-only analysis contract, not packaged code. For a
 specific task, use `python-pptx` and the Office Open XML package to inspect a
-presentation. Produce only the context needed for the task:
+presentation. Use OOXML package inspection when `python-pptx` cannot expose
+theme, master, layout, relationship, notes, comments, animation, media, or
+non-modeled formatting evidence. Resolve the package relationship graph;
+never infer slide order from filenames or copy source package parts. Produce
+only the context needed for the task:
 
 * Compact prompt context with slide count, styles, brands, template, and layout
 * Full extraction with `layout_tree`, summary metrics, and render-aware elements
@@ -190,7 +196,9 @@ presentation. Produce only the context needed for the task:
 
 Use [reference-deck analysis recipes](references/reference-deck-analysis.md)
 and [reference-deck analysis patterns](references/reference-deck-analysis-patterns.md) as static implementation
-references. Keep all extraction read-only.
+references. Use the bundled `references/ooxml-parsing.md` guidance for the
+package-part map, relationship resolution, namespace, and secure parsing
+requirements. Keep all extraction read-only.
 
 ## Visual Assets
 
@@ -204,6 +212,12 @@ When a provider, output path, or other required setting is missing, ask for the
 non-secret information before generating an infographic. If no configured
 provider is available, omit the asset and continue with editable native slide
 objects.
+
+Before any external generation call, disclose the provider and model, what
+prompt or source material will leave the machine, the likely cost, and the
+output path. Obtain explicit confirmation unless the user already authorized
+that exact operation. Never overwrite an existing output or manifest without
+separate explicit confirmation.
 
 ## Examples
 
