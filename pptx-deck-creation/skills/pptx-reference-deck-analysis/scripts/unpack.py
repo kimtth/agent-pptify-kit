@@ -13,12 +13,14 @@ MAX_MEMBER_SIZE = 100 * 1024 * 1024
 MAX_TOTAL_SIZE = 512 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 1_000
 
+
 def _workspace_path(value: str) -> Path:
     root = Path.cwd().resolve()
     path = Path(value).expanduser().resolve()
     if not path.is_relative_to(root):
         raise ValueError(f"Path escapes the current workspace: {value}")
     return path
+
 
 def _validate_members(archive: zipfile.ZipFile, output: Path) -> list[zipfile.ZipInfo]:
     members = archive.infolist()
@@ -40,6 +42,7 @@ def _validate_members(archive: zipfile.ZipFile, output: Path) -> list[zipfile.Zi
             raise ValueError(f"Suspicious compression ratio: {member.filename}")
     return members
 
+
 def unpack(source: Path, output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(source) as archive:
@@ -55,6 +58,7 @@ def unpack(source: Path, output: Path) -> None:
         document = minidom.parseString(path.read_bytes())
         path.write_bytes(document.toprettyxml(indent="  ", encoding="utf-8"))
 
+
 def main(argv: list[str] | None = None) -> None:
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 2:
@@ -63,6 +67,7 @@ def main(argv: list[str] | None = None) -> None:
     if not source.is_file():
         raise SystemExit(f"Input package does not exist: {source}")
     unpack(source, output)
+
 
 if __name__ == "__main__":
     main()

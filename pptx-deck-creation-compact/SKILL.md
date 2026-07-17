@@ -189,7 +189,7 @@ presentation. Produce only the context needed for the task:
 * Style-master analysis with colors, fonts, layout usage, and flow patterns
 
 Use [reference-deck analysis recipes](references/reference-deck-analysis.md)
-and [Python guidance](references/python-snippets.md) as static implementation
+and [reference-deck analysis patterns](references/reference-deck-analysis-patterns.md) as static implementation
 references. Keep all extraction read-only.
 
 ## Visual Assets

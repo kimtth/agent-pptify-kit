@@ -84,10 +84,10 @@ to the slide edge. A footer never overlaps content.
 
 ## Layout Grid & Safe Margins
 
-- Reserve a content-safe margin on every edge; default 0.5 in for 13.333├ù7.5 in slides. Only `layout_design` full-bleed bands may cross an edge.
-- Use a consistent column grid, e.g. 12 columns with 0.2ΓÇô0.25 in gutters; align sibling cards to shared tops, widths, and heights.
-- Keep a vertical rhythm: title band first, then content below the title rule, e.g. y Γëê 1.3 in.
-- No `content` object may extend past the slide bounds (0,0)ΓÇô(width,height) or into the safe margin.
+- Reserve a content-safe margin on every edge; default 0.5 in for 13.333×7.5 in slides. Only `layout_design` full-bleed bands may cross an edge.
+- Use a consistent column grid, e.g. 12 columns with 0.2–0.25 in gutters; align sibling cards to shared tops, widths, and heights.
+- Keep a vertical rhythm: title band first, then content below the title rule, e.g. y ≤ 1.3 in.
+- No `content` object may extend past the slide bounds (0,0)–(width,height) or into the safe margin.
 - A `footer` object may enter the declared footer rail. It must stay on the
   slide canvas and cannot overlap a content object.
 
@@ -125,15 +125,15 @@ to the slide edge. A footer never overlaps content.
 - Every shape object must include `content.shape`, `style.fill`, and `style.line`.
 - Specify text color with `style.color`; do not rely on inferred contrast or default text color.
 - Use a consistent `z_index` stack: background band (0) < card/panel (1) < rule (2) < image/diagram (3) < body text (4) < label/badge (5) < callout/number (6). Decorative overlaps are allowed only when the lower object is `layout_design`.
-- When text sits on a shape or card, inset the text bbox by Γëê0.1 in on each side from the shape bbox and size the text to that inner area, so on-card text never overflows the card.
+- When text sits on a shape or card, inset the text bbox by ≤0.1 in on each side from the shape bbox and size the text to that inner area, so on-card text never overflows the card.
 - Every normal content slide must include at least one `layout_design` object or style-derived visual structure such as an accent band, card shell, divider, signature shape, or image treatment.
 - Do not use a raster or SVG as the full content of a slide. When a source visual contains essential text, labels, numbers, or a legend, recreate that information with editable native objects. Keep the original visual only as an optional supporting asset or hidden reference.
 
 ### Type Scale
 
-Recommended/minimum pt: title 24ΓÇô32/20; H2 16ΓÇô20/14; claim 13ΓÇô15/12; body 11ΓÇô12/10; evidence 10ΓÇô11/10; label 9ΓÇô10/9; footer/meta 8ΓÇô9/8. Decorative `layout_design` text may go below the content floor; any `content` text must stay at 9 pt or above.
+Recommended/minimum pt: title 24–32/20; H2 16–20/14; claim 13–15/12; body 11–12/10; evidence 10–11/10; label 9–10/9; footer/meta 8–9/8. Decorative `layout_design` text may go below the content floor; any `content` text must stay at 9 pt or above.
 
-## Build Contract (spec ΓåÆ PPTX)
+## Build Contract (spec → PPTX)
 
 No renderer is bundled. Author the JSON spec **and** a small `python-pptx` build script. To keep rendered output matching audited coordinates:
 
@@ -142,7 +142,7 @@ No renderer is bundled. Author the JSON spec **and** a small `python-pptx` build
 - For every text frame set `word_wrap = True` and `auto_size = MSO_AUTO_SIZE.NONE`; disable shape autofit/auto-grow.
 - Zero or shrink default text insets (`margin_left/right/top/bottom`), or subtract them from capacity estimates.
 - Set vertical anchor (`MSO_ANCHOR`) and horizontal alignment (`PP_ALIGN`) explicitly.
-- Map `style.font_size`ΓåÆ`Pt`, colorsΓåÆ`RGBColor`, `style.line_width`ΓåÆ`Pt`/`Emu`, dashΓåÆ`MSO_LINE_DASH_STYLE`.
+- Map `style.font_size`→`Pt`, colors→`RGBColor`, `style.line_width`→`Pt`/`Emu`, dash→`MSO_LINE_DASH_STYLE`.
 - Preserve image aspect ratio (see `pptx-visual-assets`); do not stretch to a mismatched bbox.
 - Mark hidden slides with `show="0"` and keep them last.
 - Reject every zero or negative bbox before adding a shape, line, image, table,

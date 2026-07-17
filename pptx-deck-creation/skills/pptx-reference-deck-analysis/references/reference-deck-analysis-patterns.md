@@ -1,7 +1,7 @@
-# PPTX Python Snippets
+# Reference-Deck Analysis Patterns
 
 It describes how to approach PPTX extraction and style analysis with `python-pptx`, using short illustrative
-snippets ΓÇö not a packaged module to copy wholesale.
+snippets — not a packaged module to copy wholesale.
 
 - Do not treat these snippets as bundled runtime modules.
 - Do not import from this file or recreate `.py` files under this skill as packaged resources.
@@ -55,7 +55,7 @@ def analyze(presentation) -> dict:
 
 ### Key helper patterns
 
-- **Recursive shape walk** ΓÇö yield each shape, then recurse when it exposes `.shapes`:
+- **Recursive shape walk** — yield each shape, then recurse when it exposes `.shapes`:
 
   ```python
   def _iter_shapes(shapes):
@@ -65,24 +65,24 @@ def analyze(presentation) -> dict:
               yield from _iter_shapes(shape.shapes)
   ```
 
-- **Color normalization** ΓÇö read `color.rgb`, fall back to `theme_color`, and
+- **Color normalization** — read `color.rgb`, fall back to `theme_color`, and
   normalize to `#RRGGBB` or `theme:<token>`.
-- **Region/flow classification** ΓÇö bucket each shape's bbox center into
-  `top/middle/bottom` ├ù `left/center/right`, and infer `row` / `column` / `grid`
+- **Region/flow classification** — bucket each shape's bbox center into
+  `top/middle/bottom` × `left/center/right`, and infer `row` / `column` / `grid`
   from the spread of centers.
-- **Neutral filtering** ΓÇö treat colors with low channel spread (`max-min <= 18`)
+- **Neutral filtering** — treat colors with low channel spread (`max-min <= 18`)
   as neutrals so brand accents rank above grays.
 
 ## Extractor: structured deck capture
 
-**Goal:** turn a deck into a structured tree of slides ΓåÆ groups ΓåÆ objects, with
+**Goal:** turn a deck into a structured tree of slides → groups → objects, with
 optional media extraction and a parallel list of raw OOXML render elements.
 
 ### Approach
 
 1. For each slide, build a root group bbox covering the full slide.
 2. Walk shapes recursively; groups become nested groups, leaf shapes become objects.
-3. Classify each object by `kind` (`text`, `table`, `image`, `chart`, `connector`, ΓÇª)
+3. Classify each object by `kind` (`text`, `table`, `image`, `chart`, `connector`, …)
    and capture kind-specific `content` plus `style`.
 4. Optionally write media to an asset dir, or base64-embed when no dir is given.
 5. Read speaker notes by resolving slide `_rels` to their `notesSlide` parts.
@@ -112,23 +112,23 @@ def _kind(shape, shape_type: str) -> str:
 
 ### Kind-specific content notes
 
-- **text** ΓÇö capture `text` plus rich paragraphs (runs with font size, bold,
+- **text** — capture `text` plus rich paragraphs (runs with font size, bold,
   italic, color, hyperlink, paragraph alignment/level).
-- **table** ΓÇö emit `rows`, plus row/col counts, widths/heights, banding flags,
+- **table** — emit `rows`, plus row/col counts, widths/heights, banding flags,
   and merged-cell origins (`span_rows` / `span_cols`).
-- **image** ΓÇö record alt text, crop fractions, and either a written asset path
+- **image** — record alt text, crop fractions, and either a written asset path
   or base64 blob; flag `missing_embedded_image` when the blob is absent.
-- **chart** ΓÇö record `chart_type`, optional title, categories, and series values.
-- **line / connector** ΓÇö derive endpoints from the bbox plus flip flags, and read
+- **chart** — record `chart_type`, optional title, categories, and series values.
+- **line / connector** — derive endpoints from the bbox plus flip flags, and read
   arrow head/tail types from the `<a:ln>` element.
 
 ### Media & notes helpers
 
-- **Embedded relationship ids** ΓÇö iterate the shape element and collect attributes
+- **Embedded relationship ids** — iterate the shape element and collect attributes
   ending in `}embed`, then resolve via `shape.part.related_part(rid)`.
-- **Package media counts** ΓÇö open the `.pptx` with `zipfile` and count names under
+- **Package media counts** — open the `.pptx` with `zipfile` and count names under
   `ppt/media/` and `ppt/embeddings/`.
-- **Notes** ΓÇö parse each `ppt/slides/_rels/slideN.xml.rels`, follow the
+- **Notes** — parse each `ppt/slides/_rels/slideN.xml.rels`, follow the
   `notesSlide` relationship, and join `<a:t>` text nodes.
 
 ## Safe attribute access

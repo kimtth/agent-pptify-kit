@@ -21,11 +21,10 @@ PPTX decks. The plugin directory is `pptify`.
 - `pptify/.github/plugin/plugin.json` - VS Code/Copilot plugin metadata
 - `pptify/agents/pptx-builder.agent.md` - Main agent for editable PPTX creation
 - `pptify/skills/` - Guidance for narrative, specifications, assets, reference analysis, and quality checks
-- `pptify/skills/pptx-reference-deck-analysis/` - Read-only extraction and style-analysis contract for existing decks
+- `pptify/skills/pptx-reference-deck-analysis/` - Read-only reference-deck analysis and safe OOXML package inspection
   - extraction contract — slide structure, shapes, text, media
   - style-master contract — design, theme, colors, typography
-  - `references/python-snippets.md` — documentation-only Python snippets, not runtime modules
-- `pptify/skills/pptx-ooxml/` - Safe, read-only OOXML inspection for package-level facts
+  - `references/reference-deck-analysis-patterns.md` — documentation-only reference-deck analysis patterns, not runtime modules
   - `scripts/inspect.py` — compact relationship, theme, slide, notes, comments, animation, and media report
   - `scripts/unpack.py` — bounded safe extraction and formatted XML for raw-part review
   - `scripts/validate_package.py` — read-only package-integrity report for XML, relationships, content types, and orphaned parts
@@ -45,9 +44,9 @@ The agent guides users through a 6-step deck specification process:
 
 The `pptx-reference-deck-analysis` skill ships no importable code. It documents an
 extraction and style-analysis contract that the agent implements on demand with
-`python-pptx`. When raw package details are required, the separate `pptx-ooxml`
-skill safely parses OOXML read-only. Historical Python snippets remain documentation
-only. They are not packaged modules.
+`python-pptx`; its small bundled scripts safely parse OOXML read-only when raw
+package details are required. Historical Python snippets remain documentation only.
+They are not packaged modules.
 
 Reference templates are cataloged read-only by zero-based source slide index,
 layout role, usable regions, placeholder roles, visual structures, and reuse

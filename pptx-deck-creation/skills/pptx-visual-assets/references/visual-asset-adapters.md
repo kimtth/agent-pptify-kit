@@ -7,7 +7,7 @@ ability inline** using public APIs and short, self-contained snippets you run at
 How to use a guideline:
 
 1. Pick the ability you need below.
-2. Run the inline snippet (adjust inputs) in an ephemeral scratch file or terminal ΓÇö do not save it
+2. Run the inline snippet (adjust inputs) in an ephemeral scratch file or terminal — do not save it
    into the skill, since the skill keeps only `references/`.
 3. Place the returned local asset path into `layout_tree.objects` with `content.path`, `content.alt`,
    `bbox`, `z_index`, and `classification`.
@@ -23,7 +23,7 @@ Shared rules:
 
 ## 1. Icon Search
 
-Use the public Iconify API ΓÇö no key required.
+Use the public Iconify API — no key required.
 
 - Search: `https://api.iconify.design/search?query=<q>&limit=<n>`
 - Download SVG: `https://api.iconify.design/<prefix>/<name>.svg?color=%23<hex>`
@@ -92,7 +92,7 @@ an SVG and treat the result as editable.
 
 ---
 
-## 4. Text ΓåÆ Infographic
+## 4. Text → Infographic
 
 Generate through a user-managed provider (OpenAI or Azure OpenAI). Read credentials from environment;
 never accept secrets via chat.
@@ -139,5 +139,5 @@ NotebookLM has no public generation API, so treat this as an optional, user-conf
 
 - If the user has a NotebookLM/MCP bridge tool configured, call it with `source_refs` + `prompt`,
   then save the returned image locally and record provenance.
-- If no bridge is configured, **fall back to Text ΓåÆ Infographic (section 4)** or omit the asset.
+- If no bridge is configured, **fall back to Text → Infographic (section 4)** or omit the asset.
 - Apply the same provenance and failure-manifest rules as the other generation guidelines.

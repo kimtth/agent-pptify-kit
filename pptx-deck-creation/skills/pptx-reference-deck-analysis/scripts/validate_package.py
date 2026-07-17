@@ -31,6 +31,7 @@ def _workspace_path(value: str) -> Path:
         raise ValueError(f"Path escapes the current workspace: {value}")
     return path
 
+
 def _validate_archive(archive: zipfile.ZipFile) -> None:
     members, total = archive.infolist(), 0
     if len(members) > MAX_MEMBERS:
@@ -46,6 +47,7 @@ def _validate_archive(archive: zipfile.ZipFile) -> None:
         if member.compress_size and member.file_size / member.compress_size > MAX_COMPRESSION_RATIO:
             raise ValueError(f"Suspicious compression ratio: {member.filename}")
 
+
 def _source_part(rels_name: str) -> str | None:
     path = PurePosixPath(rels_name)
     if str(path) == "_rels/.rels":
@@ -53,6 +55,7 @@ def _source_part(rels_name: str) -> str | None:
     if path.parent.name != "_rels" or not path.name.endswith(".rels"):
         return None
     return str(path.parent.parent / path.name.removesuffix(".rels"))
+
 
 def _target(rels_name: str, value: str) -> str | None:
     source = _source_part(rels_name)
@@ -64,9 +67,11 @@ def _target(rels_name: str, value: str) -> str | None:
         target = posixpath.normpath(posixpath.join(posixpath.dirname(source), value))
     return target if target not in {"", ".", ".."} and not target.startswith("../") else None
 
+
 def _content_types(archive: zipfile.ZipFile) -> tuple[set[str], set[str]]:
     root = ET.fromstring(archive.read("[Content_Types].xml"))
     return ({item.get("Extension", "").lower() for item in root.findall(f"{CT}Default")}, {item.get("PartName", "").lstrip("/") for item in root.findall(f"{CT}Override")})
+
 
 def validate(path: str) -> dict[str, Any]:
     errors: list[dict[str, str]] = []
@@ -145,6 +150,7 @@ def validate(path: str) -> dict[str, Any]:
                     warnings.append({"part": name, "check": check, "message": "part has no inbound internal relationship"})
     return {"deck": path, "ok": not errors, "error_count": len(errors), "warning_count": len(warnings), "errors": errors, "warnings": warnings}
 
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate PPTX package integrity without modifying it.")
     parser.add_argument("deck", help="PPTX file inside the current workspace")
@@ -172,6 +178,7 @@ def main(argv: list[str] | None = None) -> int:
             + "\n"
         )
         return 2
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -11,13 +11,13 @@ The portable Agentic Plugin Marketplace staging artifacts are in
 
 | Package | Distribution | Purpose |
 | --- | --- | --- |
-| [pptx-deck-creation](pptx-deck-creation) | GitHub Copilot plugin | Full plugin distribution: agent, deck-context, specification, visual-assets, reference-analysis, OOXML, and quality-gate skills |
+| [pptx-deck-creation](pptx-deck-creation) | GitHub Copilot plugin | Full plugin distribution: agent, deck-context, specification, visual-assets, combined reference-analysis/OOXML, and quality-gate skills |
 | [pptx-deck-creation-agentic-plugin](pptx-deck-creation-agentic-plugin) | [wshobson/agents](https://github.com/wshobson/agents) | Portable marketplace staging artifacts for Claude Code, Codex CLI, Cursor, OpenCode, Gemini CLI, and GitHub Copilot |
 | [pptx-deck-creation-compact](pptx-deck-creation-compact) | [sickn33/agentic-awesome-skills](https://github.com/sickn33/agentic-awesome-skills) | Compact single-skill distribution for the Agentic Awesome Skills catalog |
 
 The plugin manifest declares the supported agent and skill paths. The workflow is
-in the custom agent. Reference-deck analysis remains static documentation in
-[pptx-deck-creation/skills/pptx-reference-deck-analysis](pptx-deck-creation/skills/pptx-reference-deck-analysis).
+in the custom agent. `pptx-reference-deck-analysis` combines static high-level
+analysis guidance with safe, read-only OOXML inspection utilities.
 
 The output remains editable: titles, text, data labels, tables, charts, and
 diagrams use native PowerPoint objects. Images support the slide but never make
@@ -54,7 +54,7 @@ and renders in that profile's real tokens.
 The `pptx-reference-deck-analysis` skill ships no importable code. It documents
 an extraction and style-analysis contract for existing PPTX decks, which the
 agent implements on demand with `python-pptx`. Documentation-only examples are
-preserved in [pptify/skills/pptx-reference-deck-analysis/references/python-snippets.md](pptify/skills/pptx-reference-deck-analysis/references/python-snippets.md).
+preserved in [pptify/skills/pptx-reference-deck-analysis/references/reference-deck-analysis-patterns.md](pptify/skills/pptx-reference-deck-analysis/references/reference-deck-analysis-patterns.md).
 They are not packaged runtime modules.
 
 The contract operations are:
@@ -70,11 +70,11 @@ for the full contract.
 
 ## OOXML Package Inspection
 
-For existing-deck details that `python-pptx` cannot expose, the
-[pptx-ooxml skill](pptify/skills/pptx-ooxml/SKILL.md) supplies safe, read-only
-tools to inspect the package relationship graph, theme, masters, layouts,
-notes, comments, animations, and media. It never mutates a supplied reference
-deck or copies binary parts into a generated deck.
+For existing-deck details that `python-pptx` cannot expose, the combined
+[pptx-reference-deck-analysis skill](pptx-deck-creation/skills/pptx-reference-deck-analysis/SKILL.md)
+supplies safe, read-only tools to inspect the package relationship graph, theme,
+masters, layouts, notes, comments, animations, and media. It never mutates a
+supplied reference deck or copies binary parts into a generated deck.
 
 For production decks, its package-integrity check reports malformed XML, broken
 internal relationships, missing content-type declarations, duplicate layout
