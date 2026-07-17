@@ -26,13 +26,13 @@ Use the selected framework as the starting narrative spine, then adapt slide cou
 
 | Framework | Default slide spine |
 |---|---|
-| `mckinsey` | Title ΓåÆ executive summary ΓåÆ situation ΓåÆ complication ΓåÆ key question ΓåÆ recommendation ΓåÆ 2-3 evidence slides ΓåÆ options ΓåÆ roadmap ΓåÆ appendix |
-| `scqa` | Title ΓåÆ situation ΓåÆ complication ΓåÆ question ΓåÆ answer ΓåÆ evidence ΓåÆ implementation plan ΓåÆ summary |
-| `pyramid` | Title ΓåÆ main answer ΓåÆ argument 1 ΓåÆ argument 2 ΓåÆ argument 3 ΓåÆ evidence ΓåÆ summary |
-| `mece` | Title ΓåÆ issue tree ΓåÆ workstream slides ΓåÆ synthesis |
-| `action-title` | Title ΓåÆ action summary ΓåÆ action-titled content slides ΓåÆ next steps |
-| `assertion-evidence` | Title ΓåÆ overview assertion ΓåÆ assertion/evidence slides ΓåÆ conclusion |
-| `exec-summary-first` | Title ΓåÆ full answer on slide 2 ΓåÆ supporting detail ΓåÆ appendix |
+| `mckinsey` | Title → executive summary → situation → complication → key question → recommendation → 2-3 evidence slides → options → roadmap → appendix |
+| `scqa` | Title → situation → complication → question → answer → evidence → implementation plan → summary |
+| `pyramid` | Title → main answer → argument 1 → argument 2 → argument 3 → evidence → summary |
+| `mece` | Title → issue tree → workstream slides → synthesis |
+| `action-title` | Title → action summary → action-titled content slides → next steps |
+| `assertion-evidence` | Title → overview assertion → assertion/evidence slides → conclusion |
+| `exec-summary-first` | Title → full answer on slide 2 → supporting detail → appendix |
 | `custom` | Ask for framework name, objective, slide sequence, title rules, layout preferences, and evidence expectations before planning. If the user provides only partial answers, apply Pyramid Principle defaults for any unspecified field, such as assertion-style title rules, and document each assumption in `summary.business_framework` |
 
 Record the resolved framework in `summary.business_framework`, including source, slide sequence, title rules, and approved assumptions.
@@ -59,7 +59,7 @@ Record the resolved framework in `summary.business_framework`, including source,
 
 ## Reference PPTX
 
-- Implement the on-demand extraction contract in `pptx-reference-deck-analysis` with `python-pptx`, or unzip the `.pptx` file and parse its XML contents directly, to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts.
+- Implement the on-demand extraction contract in `pptx-reference-deck-analysis` with `python-pptx`; use that same skill's OOXML utilities when package-level XML inspection is required to inspect production complexity, slide text, style, brand, template, and layout-rhythm facts.
 - If reference PPTX inspection fails or returns no usable data, notify the user, skip reference-derived context, and proceed using the selected design profile as the sole design source. Document this in `summary.design_context`.
 - Use the extracted facts as agent context when the new deck should follow a source deck's language, slide count, topic sequence, executive tone, colors, fonts, template conventions, and layout rhythm.
 - When authoring the new spec, translate `brands.primary_color`, `brands.accent_colors`, `brands.fonts`, `template.slide_size`, `template.layout_usage`, and `layout.slides[*].dominant_flow` into explicit `layout_tree` primitives, colors, typography, spacing, and coordinates.
@@ -83,7 +83,7 @@ Apply profile rules in this priority order: (1) explicit user request for a name
 - If no catalog profile fits, use reference PPTX analysis, search for another public source, or ask the user for a source template.
 - Record selected profile IDs, source URLs, and style lock details in `summary.design_context` before building the PPTX.
 
-Profile descriptions are in [`references/design-profiles.md`](references/design-profiles.md) ΓÇö load that file for the full catalog.
+Profile descriptions are in [`references/design-profiles.md`](references/design-profiles.md) — load that file for the full catalog.
 
 ## Applying Context to Spec Authoring
 

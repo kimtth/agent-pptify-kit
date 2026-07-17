@@ -31,8 +31,7 @@ required.
 * `pptx-deck-context`: narrative, source material, and design context
 * `pptx-slide-specification`: final coordinates and the spec-to-PPTX contract
 * `pptx-visual-assets`: permitted asset selection and placement
-* `pptx-reference-deck-analysis`: read-only reference-deck inspection
-* `pptx-ooxml`: safe package-level OOXML inspection and validation
+* `pptx-reference-deck-analysis`: read-only reference-deck analysis, safe OOXML inspection, and package validation
 * `pptx-quality-gates`: build, package, geometry, and accessibility checks
 
 Read the relevant skill before using its rules. If a required reference file is
@@ -117,7 +116,7 @@ invent missing brand, source, or accessibility details.
    containment, text capacity, font sizes, and design context.
 2. Reopen the PPTX and check slide count, shape bounds, package structure,
    hidden slides, requested-versus-actual geometry, and required metadata. Use
-   `pptx-ooxml` when package-level relationship or XML inspection is needed.
+   `pptx-reference-deck-analysis` when package-level relationship or XML inspection is needed.
 3. Inspect rendered previews when a compatible renderer is available. Check for
    clipping, font fallback, contrast, image crop issues, and visual hierarchy.
 4. Repair the specification or the small builder, rebuild, and rerun the same

@@ -19,12 +19,19 @@ MAX_MEMBER_SIZE = 100 * 1024 * 1024
 MAX_TOTAL_SIZE = 512 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 1_000
 
+
+def _write_stdout(value: str) -> None:
+    """Write UTF-8 JSON without depending on the console code page."""
+    sys.stdout.buffer.write(value.encode("utf-8"))
+
+
 def _workspace_path(value: str) -> Path:
     root = Path.cwd().resolve()
     path = Path(value).expanduser().resolve()
     if not path.is_relative_to(root):
         raise ValueError(f"Path escapes the current workspace: {value}")
     return path
+
 
 def _validate_archive(archive: zipfile.ZipFile) -> None:
     members = archive.infolist()
@@ -42,6 +49,7 @@ def _validate_archive(archive: zipfile.ZipFile) -> None:
         if member.compress_size and member.file_size / member.compress_size > MAX_COMPRESSION_RATIO:
             raise ValueError(f"Suspicious compression ratio: {member.filename}")
 
+
 def _source_part(rels_name: str) -> str | None:
     path = PurePosixPath(rels_name)
     if str(path) == "_rels/.rels":
@@ -51,14 +59,20 @@ def _source_part(rels_name: str) -> str | None:
     return str(path.parent.parent / path.name.removesuffix(".rels"))
 
 
-def _part_target(rels_name: str, target: str) -> str:
+def _part_target(rels_name: str, target: str) -> str | None:
     source = _source_part(rels_name)
     if source is None:
-        return target
-    return posixpath.normpath(posixpath.join(posixpath.dirname(source), target)).lstrip("/")
+        return None
+    if target.startswith("/"):
+        resolved = posixpath.normpath(target.lstrip("/"))
+    else:
+        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(source), target))
+    return resolved if resolved not in {"", ".", ".."} and not resolved.startswith("../") else None
+
 
 def _xml(archive: zipfile.ZipFile, name: str):
     return ET.fromstring(archive.read(name))
+
 
 def _relationships(archive: zipfile.ZipFile, name: str) -> dict[str, dict[str, str]]:
     if name not in archive.namelist():
@@ -73,6 +87,7 @@ def _relationships(archive: zipfile.ZipFile, name: str) -> dict[str, dict[str, s
             "mode": mode,
         }
     return relationships
+
 
 def inspect(path: str) -> dict:
     with zipfile.ZipFile(path) as archive:
@@ -99,6 +114,7 @@ def inspect(path: str) -> dict:
             slides.append({"index": index, "part": slide_name, "slide_id": item.get("id"), "hidden": item.get("show") == "0", "text": text, "shape_counts": dict(shape_counts), "relationships": list(rels.values()), "has_transition": slide.find(f"{P}transition") is not None, "has_timing": slide.find(f"{P}timing") is not None})
         return {"deck": path, "slide_count": len(slides), "theme": {"colors": colors, "fonts": fonts}, "slides": slides, "media": sorted(name for name in names if name.startswith("ppt/media/")), "notes_parts": sorted(name for name in names if name.startswith("ppt/notesSlides/notesSlide")), "comment_parts": sorted(name for name in names if "/comments" in name.lower())}
 
+
 def main(argv: list[str] | None = None) -> None:
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 1:
@@ -106,7 +122,8 @@ def main(argv: list[str] | None = None) -> None:
     path = _workspace_path(argv[0])
     if not path.is_file():
         raise SystemExit(f"Input package does not exist: {path}")
-    print(json.dumps(inspect(str(path)), ensure_ascii=False, indent=2))
+    _write_stdout(json.dumps(inspect(str(path)), ensure_ascii=False, indent=2) + "\n")
+
 
 if __name__ == "__main__":
     main()

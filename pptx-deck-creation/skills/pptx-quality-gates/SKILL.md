@@ -5,7 +5,7 @@ description: "Validate and repair editable PPTX artifacts, including layout, pac
 
 # PPTX Quality Gates
 
-> **Prerequisite:** Apply the manual audit in [`references/audit-checklist.md`](references/audit-checklist.md). Use `pptx-reference-deck-analysis` for high-level reference-deck analysis and `pptx-ooxml` for package inspection and validation.
+> **Prerequisite:** Apply the manual audit in [`references/audit-checklist.md`](references/audit-checklist.md). Use `pptx-reference-deck-analysis` for reference-deck analysis, OOXML package inspection, and package validation.
 
 Use this skill before considering a generated PPTX complete.
 
@@ -16,7 +16,7 @@ Use this skill before considering a generated PPTX complete.
 3. Load `references/audit-checklist.md` and apply the specification checks.
 4. Reopen the PPTX and check actual shape bounds, slide count, package structure,
 	and hidden-slide state.
-5. For production decks, run `pptx-ooxml/scripts/validate_package.py <deck.pptx> --output <report.json>` and save the package report.
+5. For production decks, run `pptx-reference-deck-analysis/scripts/validate_package.py <deck.pptx> --output <report.json>` and save the package report.
 6. Check accessibility metadata and inspect rendered previews when a compatible
 	renderer is available.
 7. Repair the spec or generation script, rebuild the PPTX, and rerun the checks.
@@ -85,5 +85,5 @@ Use this skill before considering a generated PPTX complete.
 
 ## Verification Commands
 
-- Apply the manual checklist and `pptx-ooxml/scripts/validate_package.py` to validate generated decks.
+- Apply the manual checklist and `pptx-reference-deck-analysis/scripts/validate_package.py` to validate generated decks.
 - Audit the layout-tree spec and the generated PPTX with `references/audit-checklist.md`, then record the package and rendered-preview results when available.
