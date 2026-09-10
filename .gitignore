@@ -246,3 +246,6 @@ temp/
 ref/
 /.copilot-tracking
 /tests
+/tasks
+/.github
+.python-version
